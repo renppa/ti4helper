@@ -287,7 +287,7 @@ body[data-pn="5"]{--p:#1c1c22;--p2:#2a2a33;--bd:#44444f;--bd2:#33333c;--pa1:#2a2
 <div class="hsec"><h4>Simple Tracker</h4><ul><li>Tick <b>Simple Tracker</b> on the “How many players?” screen. You only choose the VP goal, factions and colours, then press <b>Start Tracker</b>.</li><li>The <b>Tracker</b> screen shows the total played time, the VP track with manual <b>−</b>/<b>＋</b> buttons and the public objectives (add them from the list at the bottom). Tied players are listed alphabetically; the win animation still plays when someone reaches the goal.</li><li>The <b>Pause</b> button next to Total Time stops and resumes the clock.</li><li>The <b>Tech</b> button (left of View Log) shows or hides the tech panels; previously chosen techs are remembered when you hide and show them again.</li><li>No strategy, status or agenda phases or strategy-card shortcuts in this mode. Undo, View Log, zoom and the colour buttons still work.</li></ul></div>
 <div class="hsec"><h4>Keyboard shortcuts (Action Phase)</h4><ul>
 <li><kbd>1</kbd>–<kbd>8</kbd> = strategy cards (1 Leadership … 8 Imperial). Press once: card <b>played</b> (struck through). Twice: its owner shows <b>PASS</b> in the VP track. Three times: clears everything for that player.</li>
-<li>Shortcuts are ignored while typing in a field, while a dialog is open, and outside the Action Phase.</li>
+<li>The first <kbd>7</kbd> press in a round (Technology) also scrolls to the tech panels and switches tech editing on.</li><li>The first <kbd>8</kbd> press in a round (Imperial) asks whether the Mecatol Rex point is scored and adds +1 VP to the Imperial card’s owner if you answer Yes.</li><li>Shortcuts are ignored while typing in a field, while a dialog is open, and outside the Action Phase.</li>
 <li><kbd>Esc</kbd> closes the VP and summary windows.</li></ul></div>
 <div class="hsec"><h4>Mouse shortcuts</h4><ul>
 <li>Click a <b>player row in the VP track</b> = same as pressing their strategy-card number (works when <b>Score Points</b> is off and outside the Status Phase).</li>
@@ -783,7 +783,7 @@ function stFreeze(){const t=S.sT;if(t.run){t.acc+=Date.now()-t.t0;t.run=false}}
 function newStrategy(first,poFirst){S.stat=false;S.sco=false;S.abd=false;S.dlast=null;S.sc=S.f.map(()=>[]);S.sT={run:true,t0:Date.now(),acc:0,open:true};S.view='action';go();if(poFirst)poOpen();else openStrat();if(!first)sumOpen()}
 function toStrategy(){if(S.step!==3)return;newStrategy()}
 function stClose(){stFreeze();S.sT.open=false;syncClock();const m=$('stm');if(m)m.style.display='none'}
-function stStart(){if(vdOn()&&S.vd.ph.st==='done')S.vd.ph={st:'idle',kind:'agenda'};S.sh=S.sh||[];const firstSt=S.sh.length===0;{const o=stOrder(S.dord);S.sh.push([(S.sc[o[0]]||[])[0],(S.sc[o[1]]||[])[0]].filter(x=>x!==undefined))}S.spl=Array(8).fill(0);S.pass=S.f.map(()=>false);S.dlast=S.dord;S.dord=null;for(let c=0;c<8;c++){const t=S.sc.some(l=>l&&l.includes(c));S.tgt[c]=t?S.tgb[c]:0;S.tgb[c]=t?0:S.tgb[c]+1}stClose();apBegin();syncClock();renderAction();if(!firstSt)qdAsk()}
+function stStart(){if(vdOn()&&S.vd.ph.st==='done')S.vd.ph={st:'idle',kind:'agenda'};S.sh=S.sh||[];const firstSt=S.sh.length===0;{const o=stOrder(S.dord);S.sh.push([(S.sc[o[0]]||[])[0],(S.sc[o[1]]||[])[0]].filter(x=>x!==undefined))}S.spl=Array(8).fill(0);S.fp={};S.pass=S.f.map(()=>false);S.dlast=S.dord;S.dord=null;for(let c=0;c<8;c++){const t=S.sc.some(l=>l&&l.includes(c));S.tgt[c]=t?S.tgb[c]:0;S.tgb[c]=t?0:S.tgb[c]+1}stClose();apBegin();syncClock();renderAction();if(!firstSt)qdAsk()}
 function stCancel(){stClose();S.step=3;S.view='agenda';go()}
 function stTog(){const t=S.sT;if(t.run)stFreeze();else{t.t0=Date.now();t.run=true}syncClock();openStrat()}
 function pickSC(i,c,el){const L=S.sc[i]=S.sc[i]||[],j=L.indexOf(c);if(j>=0)L.splice(j,1);else{if(S.sc.some((l,q)=>q!==i&&l&&l.includes(c)))return;if(L.length>=SCN(S.f.length))L.shift();L.push(c);if(el&&S.sT.open&&S.tgb[c]>0)coinFx(el,S.tgb[c])}openStrat()}
@@ -829,6 +829,14 @@ function poDraw(){let m=$('pom');if(!m){m=document.createElement('div');m.id='po
  <div class="pgb" style="display:flex;flex-wrap:wrap;gap:.5rem">${L.map(([q,k])=>`<button class="pob ${POSEL.includes(k)?'popick':''}" title="${esc(q[2])}" ${!POSEL.includes(k)&&POSEL.length>=2?'disabled':''} onclick="poToggle(${k})">${POSEL.includes(k)?'✓ ':''}${esc(q[0])}</button>`).join('')}</div>
  <div class="act"><button onclick="poGo(false)">Skip</button><button class="go" ${POSEL.length===2?'':'disabled'} onclick="poGo(true)">Add &amp; choose strategy cards</button></div></div>`;
  m.style.display='flex'}
+
+/* ===== IMPERIAL: Mecatol Rex point question ===== */
+function impOwner(){return S.f.findIndex((x,i)=>((S.sc&&S.sc[i])||[]).includes(7))}
+function impClose(){const m=$('imm');if(m)m.style.display='none'}
+function impAsk(){const own=impOwner();if(own<0)return;let m=$('imm');if(!m){m=document.createElement('div');m.id='imm';m.className='mo';document.body.appendChild(m)}
+ m.innerHTML=`<div class="mb"><div class="mh"><h3>Imperial</h3></div><p class="stn" style="font-size:1.25rem;line-height:1.4">Does <b style="color:${pcol(own)}">${esc(F[S.f[own]][0])}</b> score the Mecatol Rex point (+1 VP)?</p><div class="act"><button onclick="impClose()">No</button><button class="go" onclick="impYes(${own})">Yes, +1 VP</button></div></div>`;
+ m.style.display='flex'}
+function impYes(i){impClose();pushUndo();S.mp.push({id:++S.mid,p:i,pts:1,r:'Imperial Strategy Card',note:'Mecatol Rex'});snap(i,1,'Imperial Strategy Card');renderAction()}
 /* ===== MANIPULATE INVESTMENTS ===== */
 var MI=[0,0,0,0,0,0,0,0];
 const miSum=()=>MI.reduce((a,b)=>a+b,0),miCards=()=>MI.filter(x=>x>0).length;
@@ -911,8 +919,14 @@ document.addEventListener('keydown',e=>{
  const t=e.target,tg=t&&t.tagName;
  if(tg==='INPUT'||tg==='TEXTAREA'||tg==='SELECT'||(t&&t.isContentEditable))return;
  if([...document.querySelectorAll('.mo,.ov')].some(m=>getComputedStyle(m).display!=='none'))return;
- cycleSC(+e.key-1);
- renderAction();
+ const kc=+e.key-1,before=(S.spl&&S.spl[kc]|0);
+ if(!S.fp)S.fp={};
+ cycleSC(kc);
+ if(kc===6&&before===0&&(S.spl[6]|0)===1&&!S.fp[6]){
+  S.fp[6]=1;S.techEdit=true;renderAction();
+  setTimeout(()=>{const t=document.querySelector('.tpanel');if(t)t.scrollIntoView({block:'center',behavior:'smooth'})},60)}
+ else if(kc===7&&before===0&&(S.spl[7]|0)===1&&!S.fp[7]){S.fp[7]=1;renderAction();impAsk()}
+ else renderAction();
  e.preventDefault();
 });
 
