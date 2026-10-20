@@ -272,6 +272,9 @@ body[data-pn="3"]{--p:#1a2030;--p2:#263044;--bd:#3d4b68;--bd2:#2e3850;--pa1:#263
 body[data-pn="4"]{--p:#122318;--p2:#1b3624;--bd:#2f5a3d;--bd2:#234530;--pa1:#1b3624cc;--pa2:#122318cc;--pb1:#122318;--pb2:#1b3624}
 body[data-pn="5"]{--p:#1c1c22;--p2:#2a2a33;--bd:#44444f;--bd2:#33333c;--pa1:#2a2a33cc;--pa2:#1c1c22cc;--pb1:#1c1c22;--pb2:#2a2a33}
 .xcn{margin:.3rem 0 .5rem;padding:.45rem .6rem;border:1px solid var(--gold);border-radius:.6rem;font-size:.8rem;line-height:1.35;color:var(--m)}.xcn b{color:var(--gold)}
+.wsph{opacity:.28;transition:opacity .45s;margin-top:.45rem}.wsph.on{opacity:1}.wsph.cur{outline:.12rem solid #e9c46a55;outline-offset:.2rem;border-radius:.4rem}.wspl{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--m);margin-bottom:.15rem}.wsrev{font-size:.85rem;line-height:1.35;margin:.15rem 0 .25rem}.wsrev em{color:var(--m);font-style:normal}.wsb{max-width:92rem;margin:0 auto;padding-top:3.4rem}.wsbt{display:flex;gap:.5rem}.wsrd{display:grid;grid-template-columns:repeat(auto-fill,minmax(16rem,1fr));gap:.7rem;margin-top:1rem}
+.wsc{background:var(--p);border:.12rem solid var(--bd2,#2c2850);border-radius:.9rem;padding:.7rem .85rem;opacity:.12;transform:translateY(.6rem);transition:opacity .5s,transform .5s,border-color .5s}.wsc.on{opacity:1;transform:none}.wsc.cur{border-color:var(--gold)}
+.wsc h4{margin:0 0 .4rem;color:var(--gold);font-family:var(--fs);font-weight:400;font-size:1.25rem}.wsr{display:flex;gap:.45rem;align-items:flex-start;font-size:.85rem;margin:.3rem 0;line-height:1.35}.wsr i{width:.7rem;height:.7rem;border-radius:50%;background:var(--fc);flex:none;margin-top:.3rem}.wsr b{color:var(--fc);filter:brightness(1.25)}.wsr em{font-style:normal;color:var(--m)}.wsr .neg{color:var(--ag)}.wsn{color:var(--m);font-size:.85rem}
 </style></head><body><main>
 <div class="top"><div class="brand" id="brand">AGENDA PHASE</div><div class="fi-clock" id="fiClock" aria-label="Finnish local time"><time id="fiClockTime">--:--:--</time></div><div class="dots" id="dots"></div><div class="tip-ticker" id="tipTicker" hidden aria-label="Twilight Imperium strategy tips"><span class="tip-label">STRATEGY TIP</span><div class="tip-window"><div class="tip-track" id="tipTrack"></div></div></div><span class="apk" id="apk" hidden></span><button class="phb" id="phb" onclick="phClick()" hidden></button><button class="elimb" id="elimb" onclick="elimOpen()" title="Eliminate a player from the game" hidden>✕ Eliminate player</button><button class="ghost logb" id="techb" onclick="toggleTech()" title="Show or hide the tech panels" hidden>Tech</button><button class="ghost logb" id="logb" onclick="openLog()" title="View action log">View Log</button><button class="ghost logb" id="helpb" onclick="openHelp()" title="Help &amp; shortcuts">Help</button><div class="zoomctl" id="zoomCtl" aria-label="Zoom"><button class="ghost logb" id="zOut" title="Zoom out" aria-label="Zoom out">−</button><button class="ghost logb" id="zVal" title="Reset zoom">100%</button><button class="ghost logb" id="zIn" title="Zoom in" aria-label="Zoom in">+</button></div><button class="ghost logb" id="bgb" title="Change background" aria-label="Change background">BG</button><button class="ghost logb" id="pnb" title="Change panel colour" aria-label="Change panel colour">Panel</button><button class="ghost undob" id="fontb" onclick="cycleFont()" title="Change font">Aa</button><button class="ghost undob" id="undob" onclick="undo()" title="Undo the last action" disabled>↶ Undo</button></div>
 <div id="app"></div><div class="logmodal" id="helpmodal" onclick="if(event.target===this)closeHelp()"><div class="logbox helpbox"><div class="loghead"><h3>Help · Quick Guide</h3><button class="ghost logb" onclick="closeHelp()">Close</button></div>
@@ -279,7 +282,7 @@ body[data-pn="5"]{--p:#1c1c22;--p2:#2a2a33;--bd:#44444f;--bd2:#33333c;--pa1:#2a2
 <li><b>Setup</b> – pick VP goal (10/12/14), Entropic Scar on/off and the <b>Agenda deck</b> (Absol or Normal). Set the <b>Speaker first</b> (becomes Player 1; seating follows clockwise), choose factions and colours, then press <b>Select public objectives</b>. Pick the 2 Stage I public objectives revealed at the start, and the strategy card window opens on top of the Action Phase view.</li>
 <li><b>Strategy Phase</b> – a window where players pick strategy cards in turn order (unchosen cards collect trade goods). Then <b>Start Action Phase</b>.</li>
 <li><b>Action Phase</b> – start the timer, score objectives, track VP markers and techs. Use <b>Start Status Phase</b> when everyone has passed.</li>
-<li><b>Status Phase</b> – shows the step checklist and faction reminders. The final button reads <b>Start Agenda Phase</b> if someone holds the <b>Custodians Token</b>, otherwise <b>Start Strategy Phase</b> (new round).</li>
+<li><b>Status Phase</b> – a window first asks which public objectives are revealed this round – you can pick several (Stage I until five are out, then Stage II). It then shows the step checklist and faction reminders. The final button reads <b>Start Agenda Phase</b> if someone holds the <b>Custodians Token</b>, otherwise <b>Start Strategy Phase</b> (new round).</li>
 <li><b>Agenda Phase</b> – choose an agenda, vote, <b>Resolve Agenda</b>, then <b>Agenda complete</b>. Afterwards press <b>Start Strategy Phase ▶</b> (top right).</li></ol></div>
 <div class="hsec"><h4>How to reach the Agenda Phase</h4><ul>
 <li>Set the <b>Custodians Token</b> holder in the selectors at the top of the Action Phase (whoever took Mecatol Rex). Without it the app assumes no Agenda Phase and starts a new Strategy Phase.</li>
@@ -640,16 +643,16 @@ function showRes(){const c=calc();P=c.P;ALL=P.map(p=>p.i);NP=c.n;WN=c.win;R=S.rs
 /* ===== ACTION PHASE TV OVERVIEW, CLOCKS, VP SCOREBOARD ===== */
 const PO=[["Corner the Market", 1, "Control 4 planets that each have the same planet trait."], ["Develop Weaponry", 1, "Own 2 unit upgrade technologies."], ["Diversify Research", 1, "Own 2 technologies in each of 2 colors."], ["Erect a Monument", 1, "Spend 8 resources."], ["Expand Borders", 1, "Control 6 planets in non-home systems."], ["Found Research Outposts", 1, "Control 3 planets that have technology specialties."], ["Intimidate Council", 1, "Have 1 or more ships in 2 systems that are adjacent to Mecatol Rex’s system."], ["Lead from the Front", 1, "Spend a total of 3 tokens from your tactic and/or strategy pools."], ["Negotiate Trade Routes", 1, "Spend 5 trade goods."], ["Sway the Council", 1, "Spend 8 influence."], ["Amass Wealth", 1, "Spend 3 influence, 3 resources, and 3 trade goods."], ["Build Defenses", 1, "Have 4 or more structures."], ["Discover Lost Outposts", 1, "Control 2 planets that have attachments."], ["Engineer a Marvel", 1, "Have your flagship or a war sun on the game board."], ["Explore Deep Space", 1, "Have units in 3 systems that do not contain planets."], ["Improve Infrastructure", 1, "Have structures on 3 planets outside of your home system."], ["Make History", 1, "Have units in 2 systems that contain legendary planets, Mecatol Rex, or anomalies."], ["Populate the Outer Rim", 1, "Have units in 3 systems on the edge of the game board other than your home system."], ["Push Boundaries", 1, "Control more planets than each of 2 of your neighbors."], ["Raise a Fleet", 1, "Have 5 or more non-fighter ships in 1 system."], ["Centralize Galactic Trade", 2, "Spend 10 trade goods."], ["Conquer the Weak", 2, "Control 1 planet that is in another player’s home system."], ["Form Galactic Brain Trust", 2, "Control 5 planets that have technology specialties."], ["Found a Golden Age", 2, "Spend 16 resources."], ["Galvanize the People", 2, "Spend a total of 6 tokens from your tactic and/or strategy pools."], ["Manipulate Galactic Law", 2, "Spend 16 influence."], ["Master the Sciences", 2, "Own 2 technologies in each of 4 colors."], ["Revolutionize Warfare", 2, "Own 3 unit upgrade technologies."], ["Subdue the Galaxy", 2, "Control 11 planets in non-home systems."], ["Unify the Colonies", 2, "Control 6 planets that each have the same planet trait."], ["Achieve Supremacy", 2, "Have your flagship or a war sun in another player’s home system or the Mecatol Rex system."], ["Become a Legend", 2, "Have units in 4 systems that contain legendary planets, Mecatol Rex, or anomalies."], ["Command an Armada", 2, "Have 8 or more non-fighter ships in 1 system."], ["Construct Massive Cities", 2, "Have 7 or more structures."], ["Control the Borderlands", 2, "Have units in 5 systems on the edge of the game board other than your home system."], ["Hold Vast Reserves", 2, "Spend 6 influence, 6 resources, and 6 trade goods."], ["Patrol Vast Territories", 2, "Have units in 5 systems that do not contain planets."], ["Protect the Border", 2, "Have structures on 5 planets outside of your home system."], ["Reclaim Ancient Monuments", 2, "Control 3 planets that have attachments."], ["Rule Distant Lands", 2, "Control 2 planets that are each in or adjacent to a different, other player’s home system."]];
 const fmtH=ms=>{const t=Math.max(0,Math.floor(ms/1000)),h=Math.floor(t/3600),m=Math.floor(t%3600/60),c=t%60,z=n=>String(n).padStart(2,'0');return z(h)+':'+z(m)+':'+z(c)};
-const clockShouldRun=()=>S.simple?(S.step>=3&&S.view==='action'&&!S.tpause):S.view==='action'?(!!S.ap.run||!!(S.sT&&S.sT.run)||!!S.stat):S.step>=3;
+const clockShouldRun=()=>S.won!=null?false:S.simple?(S.step>=3&&S.view==='action'&&!S.tpause):S.view==='action'?(!!S.ap.run||!!(S.sT&&S.sT.run)||!!S.stat):S.step>=3;
 function syncClock(){const now=Date.now(),r=clockShouldRun();if(r&&S.gts==null)S.gts=now;else if(!r&&S.gts!=null){S.gt+=now-S.gts;S.gts=null}}
 const gtNow=()=>S.gt+(S.gts!=null?Date.now()-S.gts:0);
 const apMs=()=>S.ap.acc+(S.ap.run?Date.now()-S.ap.t0:0);
-function apBegin(){const a=S.ap;if(a.state==='idle'||a.state==='ended')a.acc=0;if(!a.run){a.t0=Date.now();a.run=true;a.state='running'}}
+function apBegin(){const a=S.ap;if(a.state==='idle'||a.state==='ended'){a.acc=0;S.rn=(S.rn||0)+1}if(!a.run){a.t0=Date.now();a.run=true;a.state='running'}}
 function apFinish(){const a=S.ap;if(a.run)a.acc+=Date.now()-a.t0;a.run=false;a.state='ended'}
 function apStart(){S.stat=false;if(S.sT.open)stClose();apBegin();syncClock();renderAction()}
 function apPause(){const a=S.ap;if(a.run){a.acc+=Date.now()-a.t0;a.run=false;a.state='paused'}syncClock();renderAction()}
 const custTaken=()=>!!(S.hold&&S.hold[2]!=null);
-function statusStart(){const a=S.ap;if(a.run){a.acc+=Date.now()-a.t0;a.run=false}if(a.state==='running')a.state='paused';S.stat=true;syncClock();renderAction()}
+function statusStart(){const a=S.ap;if(a.run){a.acc+=Date.now()-a.t0;a.run=false}if(a.state==='running')a.state='paused';S.stat=true;syncClock();renderAction();statusObjAsk()}
 function statusGo(){if(custTaken()){apFinish();S.stat=false;S.step=3;S.view='agenda';go();absStart()}
  else{apFinish();S.stat=false;S.step=3;newStrategy()}}
 function statusRem(){const L=[],fi=n=>S.f.findIndex(x=>x>=0&&F[x][1]===n);let i=fi('Sol');
@@ -728,7 +731,7 @@ const inkOn=hx=>{const h=hx.replace('#','');const r=parseInt(h.substr(0,2),16),g
 const badge=i=>`<i class="fb" style="--fc:${pcol(i)};--ik:${inkOn(pcol(i))}">${esc(F[S.f[i]][1].charAt(0))}</i>`;
 function vpOf(i){let po=0,so=0,ex=0;S.obj.forEach(o=>{if(o.s.includes(i))po+=PO[o.k][1]});S.mp.forEach(m=>{if(m.p===i){if(m.r==='Secret Objective')so+=m.pts;else ex+=m.pts}});HOLD.forEach((h,k)=>{if(k===3&&!ixOn())return;if(S.hold&&S.hold[k]===i)ex+=h[1]});return{po,so,ex,t:po+so+ex}}
 function ranking(){const r=S.f.map((x,i)=>Object.assign({i},vpOf(i)));r.sort((a,b)=>b.t-a.t||(S.simple?F[S.f[a.i]][0].localeCompare(F[S.f[b.i]][0]):scMin(a.i)-scMin(b.i))||a.i-b.i);let rk=0,prev=null;r.forEach((e,k)=>{const key=e.t+'/'+(S.simple?0:scMin(e.i));if(key!==prev){rk=k+1;prev=key}e.rk=rk});return r}
-function addObj(k){if(S.obj.some(o=>o.k===k))return;S.obj.push({k,s:[]});renderAction()}
+function addObj(k,ph){if(S.obj.some(o=>o.k===k))return;S.obj.push({k,s:[],r:S.rn|0,ph:ph||(S.rn?(S.stat?'status':'other'):'setup')});renderAction()}
 function togScore(k,i){const o=S.obj.find(o=>o.k===k);if(!o)return;const j=o.s.indexOf(i),vp=PO[k][1];if(j>=0){o.s.splice(j,1);snap(i,-vp,'Removed: '+PO[k][0])}else{o.s.push(i);snap(i,vp,PO[k][0])}renderAction()}
 function rmObj(k){const o=S.obj.find(o=>o.k===k);if(!o)return;const had=o.s.length;S.obj=S.obj.filter(x=>x.k!==k);if(had)snap(null,0,'Removed objective: '+PO[k][0]);renderAction()}
 
@@ -846,6 +849,23 @@ function impAsk(){const own=impOwner();if(own<0)return;let m=$('imm');if(!m){m=d
  m.innerHTML=`<div class="mb"><div class="mh"><h3>Imperial</h3></div><p class="stn" style="font-size:1.25rem;line-height:1.4">Does <b style="color:${pcol(own)}">${esc(F[S.f[own]][0])}</b> score the Mecatol Rex point (+1 VP)?</p><div class="act"><button onclick="impClose()">No</button><button class="go" onclick="impYes(${own})">Yes, +1 VP</button></div></div>`;
  m.style.display='flex'}
 function impYes(i){impClose();pushUndo();S.mp.push({id:++S.mid,p:i,pts:1,r:'Imperial Strategy Card',note:'Mecatol Rex'});snap(i,1,'Imperial Strategy Card');renderAction()}
+
+/* ===== STATUS PHASE: reveal a public objective every round ===== */
+var SOBSEL=[],SOBST=1;
+function sobStage(){return S.obj.filter(o=>PO[o.k][1]===1).length<5?1:2}
+function statusObjAsk(){const r=S.rn|0;if(S.sobR===r)return;S.sobR=r;SOBSEL=[];SOBST=sobStage();sobDraw()}
+function sobPick(k){const j=SOBSEL.indexOf(k);if(j>=0)SOBSEL.splice(j,1);else SOBSEL.push(k);sobDraw()}
+function sobTab(g){SOBST=g;sobDraw()}
+function sobClose(){const m=$('sob');if(m)m.style.display='none'}
+function sobGo(add){if(add&&!SOBSEL.length)return;sobClose();if(add){pushUndo();SOBSEL.slice().forEach(k=>addObj(k,'status'))}SOBSEL=[]}
+function sobDraw(){let m=$('sob');if(!m){m=document.createElement('div');m.id='sob';m.className='mo';document.body.appendChild(m)}
+ const L=PO.map((q,k)=>[q,k]).filter(([q,k])=>q[1]===SOBST&&!S.obj.some(o=>o.k===k));
+ m.innerHTML=`<div class="mb"><div class="mh"><h3>Status Phase · Round ${Math.max(1,S.rn|0)}</h3></div>
+ <p class="stn" style="font-size:1.1rem">Which public objectives are revealed this round? You can pick more than one${SOBSEL.length?' ('+SOBSEL.length+' selected)':''}.</p>
+ <div class="act" style="justify-content:flex-start;margin:.2rem 0 .6rem"><button class="${SOBST===1?'go':''}" onclick="sobTab(1)">Stage I · 1 VP</button><button class="${SOBST===2?'go':''}" onclick="sobTab(2)">Stage II · 2 VP</button></div>
+ <div class="pgb" style="display:flex;flex-wrap:wrap;gap:.5rem">${L.map(([q,k])=>`<button class="pob ${SOBSEL.includes(k)?'popick':''}" title="${esc(q[2])}" onclick="sobPick(${k})">${SOBSEL.includes(k)?'✓ ':''}${esc(q[0])}</button>`).join('')||'<span style="color:var(--m)">All revealed</span>'}</div>
+ <div class="act"><button onclick="sobGo(false)">Skip</button><button class="go" ${SOBSEL.length?'':'disabled'} onclick="sobGo(true)">Reveal ${SOBSEL.length>1?SOBSEL.length+' objectives':'objective'}</button></div></div>`;
+ m.style.display='flex'}
 /* ===== MANIPULATE INVESTMENTS ===== */
 var MI=[0,0,0,0,0,0,0,0];
 const miSum=()=>MI.reduce((a,b)=>a+b,0),miCards=()=>MI.filter(x=>x>0).length;
@@ -1101,11 +1121,11 @@ function goalRow(){return `<div class="goalrow"><span>Victory point goal</span>$
 
 /* ===== VP HISTORY, WIN, SUMMARY ===== */
 let WT;
-function hideOv(){['sum','vpm','stm','dm','srm','abm','acm','tbm','lwm','elm','scm'].forEach(id=>{const e=$(id);if(e)e.style.display='none'})}
+function hideOv(){['sum','wsm','sob','vpm','stm','dm','srm','abm','acm','tbm','lwm','elm','scm'].forEach(id=>{const e=$(id);if(e)e.style.display='none'})}
 function snap(p,delta,label){if(!S.hist.length)S.hist.push({t:0,tot:S.f.map(()=>0),p:null,d:0,txt:'Game start'});
- const tot=S.f.map((x,i)=>vpOf(i).t);S.hist.push({t:gtNow(),tot,p,d:delta,txt:label});
+ const tot=S.f.map((x,i)=>vpOf(i).t);S.hist.push({t:gtNow(),tot,p,d:delta,txt:label,r:Math.max(1,S.rn||1),ph:S.view==='agenda'?'agenda':(S.stat?'status':'action')});
  if(S.won!=null&&Math.max(...tot)<S.goal)S.won=null;
- if(S.won==null&&p!=null&&delta>0&&tot[p]>=S.goal){S.won=p;celebrate(p)}}
+ if(S.won==null&&p!=null&&delta>0&&tot[p]>=S.goal){S.won=p;syncClock();celebrate(p);if(!S.simple)setTimeout(()=>{if(S.won===p)showWinSummary(p)},1800)}}
 function celebrate(p){try{
  ['fxc','fxt'].forEach(id=>{const e=document.getElementById(id);if(e)e.remove()});
  const c=document.createElement('canvas');c.id='fxc';c.style.cssText='position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:9999';
@@ -1150,6 +1170,64 @@ function renderSummary(){const m=$('sum');if(!m)return;const n=S.f.length,rk=ran
  </tbody></table></div></div>`}
 function showSummary(){let m=$('sum');if(!m){m=document.createElement('div');m.id='sum';m.className='smo';document.body.appendChild(m)}renderSummary();m.style.display='block';m.scrollTop=0}
 function closeSummary(){const m=$('sum');if(m)m.style.display='none'}
+
+/* ===== WIN SUMMARY: animated scoring by round (not in Simple Tracker) ===== */
+let WSR=0;
+function closeWin(){cancelAnimationFrame(WSR);const m=$('wsm');if(m)m.style.display='none'}
+function winData(){const n=S.f.length,all=S.hist||[],PHI={action:0,status:1,agenda:2};
+ const R=Math.max(1,S.rn|0,...all.map(h=>h.r||1)),K=R*3;
+ let prev=0;const E=all.map(h=>{const raw=((h.r||1)-1)*3+(PHI[h.ph]||0)+1;prev=Math.max(prev,raw);return{h,i:Math.min(K,prev)}});
+ const ev=Array.from({length:R},()=>Array.from({length:3},()=>Array.from({length:n},()=>[])));
+ E.forEach(({h,i})=>{if(h.p!=null&&h.p>=0&&h.p<n)ev[Math.floor((i-1)/3)][(i-1)%3][h.p].push({t:h.txt,d:h.d})});
+ const tot=[Array(n).fill(0)];
+ for(let k=1;k<=K;k++){let last=null;E.forEach(e=>{if(e.i<=k)last=e.h});tot.push(Array.from({length:n},(_,i)=>(last&&last.tot&&last.tot[i])||0))}
+ tot[K]=S.f.map((x,i)=>vpOf(i).t);
+ const rev=Array.from({length:R},()=>[[],[],[]]);
+ (S.obj||[]).forEach(o=>{if(!o.r||o.ph==='setup')return;const r=Math.min(R,o.r);rev[r-1][o.ph==='status'?1:0].push(o)});
+ return{n,R,K,ev,tot,rev}}
+function wsCard(D,r){const NM=['Action','Status','Agenda'];let any=false;
+ const secs=NM.map((nm,ph)=>{
+  const rows=D.ev[r-1][ph].map((L,i)=>{if(!L.length)return '';const sum=L.reduce((a,e)=>a+e.d,0),lab=L.map(e=>e.d<0?`<span class="neg">${esc(e.t)}</span>`:esc(e.t)).join(', ');
+   return `<div class="wsr" style="--fc:${pcol(i)}"><i></i><span><b>${esc(F[S.f[i]][1])}</b> ${sum>0?'+':''}${sum} <em>${lab}</em></span></div>`}).join('');
+  const rv=D.rev[r-1][ph].map(o=>`<div class="wsrev">📜 Public objective revealed: <b>${esc(PO[o.k][0])}</b> <em>(Stage ${PO[o.k][1]==1?'I':'II'})</em></div>`).join('');
+  if(rows||rv)any=true;
+  return `<div class="wsph" data-st="${(r-1)*3+ph+1}"><div class="wspl">${nm} Phase</div>${rv}${rows||'<div class="wsn">–</div>'}</div>`}).join('');
+ return `<div class="wsc"><h4>Round ${r}</h4>${any?secs:'<div class="wsn">No scoring</div>'}</div>`}
+function wsDraw(D,tp){const n=D.n,R=D.R,K=D.K,W=1200,Hh=540,L=60,RR=170,T=24,B=60,pw=W-L-RR,ph=Hh-T-B,mx=Math.max(S.goal,...D.tot.flat()),X=k=>L+pw*k/K,Y=v=>T+ph-ph*v/mx;
+ let g='';const ys=mx>14?2:1;
+ for(let v=0;v<=mx;v+=ys)g+=`<line x1="${L}" x2="${W-RR}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--bd2,#2c2850)" stroke-width="1.5"/><text x="${L-10}" y="${Y(v)+6}" text-anchor="end" font-size="17" style="fill:var(--m)">${v}</text>`;
+ const PL=['A','S','G'];
+ for(let k=0;k<=K;k++){const major=k%3===0;g+=`<line x1="${X(k)}" x2="${X(k)}" y1="${T}" y2="${T+ph}" stroke="${major?'#2f2b5a':'#1b1838'}" stroke-width="${major?2:1}"/>`;
+  if(k>0)g+=`<text x="${X(k)-pw/K/2}" y="${Hh-34}" text-anchor="middle" font-size="12" style="fill:var(--m);opacity:.7">${PL[(k-1)%3]}</text>`;
+  if(k%3===0&&k<K)g+=`<text x="${X(k)+pw/K*1.5}" y="${Hh-12}" text-anchor="middle" font-size="17" style="fill:var(--m)">R${k/3+1}</text>`}
+ g+=`<text x="${L}" y="${Hh-12}" text-anchor="middle" font-size="14" style="fill:var(--m)">Start</text>`;
+ g+=`<line x1="${L}" x2="${W-RR}" y1="${Y(S.goal)}" y2="${Y(S.goal)}" stroke="#e9c46a" stroke-width="2.5" stroke-dasharray="10 8"/><text x="${W-RR-6}" y="${Y(S.goal)-8}" text-anchor="end" font-size="17" style="fill:#e9c46a;font-weight:700">GOAL ${S.goal} VP</text>`;
+ const k=Math.min(K,Math.floor(tp)),fr=tp-k,order=D.tot[K].map((v,i)=>[v,i]).sort((a,b)=>b[0]-a[0]||a[1]-b[1]).map(x=>x[1]);
+ const heads=[];order.forEach(i=>{const off=(i-(n-1)/2)*2.2,col=pcol(i);const pts=[];for(let r=0;r<=k;r++)pts.push([X(r),Y(D.tot[r][i])+off]);
+  let cv=D.tot[k][i];if(k<K&&fr>0){cv=D.tot[k][i]+(D.tot[k+1][i]-D.tot[k][i])*fr;pts.push([X(tp),Y(cv)+off])}
+  g+=`<polyline points="${pts.map(q=>q.join(',')).join(' ')}" fill="none" stroke="${col}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>`;
+  for(let r=1;r<=k;r++)if(D.tot[r][i]!==D.tot[r-1][i])g+=`<circle cx="${X(r)}" cy="${Y(D.tot[r][i])+off}" r="6" fill="${col}" stroke="#0a0818" stroke-width="2"/>`;
+  const hx=pts[pts.length-1][0],hy=pts[pts.length-1][1];
+  g+=`<circle cx="${hx}" cy="${hy}" r="8" fill="${col}" stroke="#fff" stroke-width="2"/>`;heads.push({i,hx,hy,cv,col})});
+ heads.sort((a,b)=>a.hy-b.hy||a.i-b.i);let py=-99;heads.forEach(h=>{let ly=h.hy;if(ly-py<21)ly=py+21;py=ly;g+=`<text x="${h.hx+16}" y="${ly+6}" font-size="17" font-weight="700" style="fill:${h.col};filter:brightness(1.25)">${esc(F[S.f[h.i]][1])} ${Math.round(h.cv)}</text>`});
+ g+=`<line x1="${X(tp)}" x2="${X(tp)}" y1="${T}" y2="${T+ph}" stroke="#ffffff55" stroke-width="2" stroke-dasharray="4 6"/>`;
+ const sv=$('wssvg');if(sv)sv.innerHTML=g}
+function wsPlay(){const m=$('wsm');if(!m||!m._d)return;cancelAnimationFrame(WSR);const D=m._d,R=D.R,K=D.K,T=Math.min(18000,Math.max(9000,K*650)),t0=performance.now(),NM=['Action Phase','Status Phase','Agenda Phase'];
+ const cards=m.querySelectorAll('.wsc'),phs=m.querySelectorAll('.wsph'),w=$('wsw'),rn=$('wsrn');cards.forEach(c=>c.className='wsc');phs.forEach(q=>q.className='wsph');if(w)w.style.opacity=0;
+ const step=now=>{if(m.style.display==='none')return;const pr=Math.max(0,Math.min(1,(now-t0)/T)),tp=pr*K,cs=Math.min(K,Math.floor(tp)+1),cr=Math.floor((cs-1)/3)+1;
+  wsDraw(D,tp);cards.forEach((c,k)=>{c.classList.toggle('on',k<cr);c.classList.toggle('cur',pr<1&&k===cr-1)});
+  phs.forEach(q=>{const st=+q.dataset.st;q.classList.toggle('on',st<=cs);q.classList.toggle('cur',pr<1&&st===cs)});
+  if(rn)rn.textContent=pr<1?'Round '+cr+' / '+R+' · '+NM[(cs-1)%3]:'Final standings after round '+R;
+  if(pr<1)WSR=requestAnimationFrame(step);else if(w)w.style.opacity=1};
+ WSR=requestAnimationFrame(step)}
+function showWinSummary(p){let m=$('wsm');if(!m){m=document.createElement('div');m.id='wsm';m.className='smo';document.body.appendChild(m)}
+ const D=winData();m._d=D;const w=S.won!=null?S.won:p;
+ m.innerHTML=`<div class="wsb"><div class="mh"><h3>Game summary – scoring by round</h3><div class="wsbt"><button onclick="wsPlay()">↻ Replay</button><button onclick="closeWin();showSummary()">Full history</button><button onclick="closeWin()">✕ Close</button></div></div>
+ <div class="swin" id="wsw" style="--fc:${pcol(w)};opacity:0;transition:opacity .8s">🏆 ${esc(F[S.f[w]][0])} wins with ${vpOf(w).t} VP</div>
+ <div class="wsn" id="wsrn" style="font-size:1.05rem;margin:.2rem 0 .6rem">Round 1 / ${D.R} · Action Phase</div>
+ <svg id="wssvg" viewBox="0 0 1200 540" style="width:100%;height:auto;background:var(--p);border-radius:1rem"></svg>
+ <div class="wsrd">${Array.from({length:D.R},(_,r)=>wsCard(D,r+1)).join('')}</div></div>`;
+ m.style.display='block';m.scrollTop=0;wsPlay()}
 
 
 /* ===== VIRTUAL ABSOL AGENDA DECK + ACTIVE LAWS (added) ===== */
