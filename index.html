@@ -965,7 +965,7 @@ function openNames(forCopy){let m=$('nmo');if(!m){m=document.createElement('div'
  m.innerHTML=`<div class="smb" style="max-width:34rem"><div class="mh"><h3>${forCopy?'Who played which faction?':'Player names (optional)'}</h3><button onclick="closeNames()">✕ Close</button></div>
  <datalist id="nmdl">${known.map(n=>`<option value="${esc(n)}">`).join('')}</datalist>
  ${ord.map((i,k)=>`<div style="display:flex;align-items:center;gap:.7rem;margin:.55rem 0"><span style="width:1.6rem;color:var(--m)">${forCopy?k+1:'P'+(i+1)}</span><span class="tdot" style="--fc:${pcol(i)}"></span><b style="flex:0 0 9rem">${esc(F[S.f[i]][1])}</b><input type="text" class="nmin" data-i="${i}" list="nmdl" value="${esc(nmGet(i))}" placeholder="Player name" autocomplete="off"></div>`).join('')}
- <div style="margin-top:1rem;display:flex;gap:.6rem;justify-content:flex-end">${forCopy?'<button class="go" id="nmgo" onclick="doCopyExcel(this)">📋 Copy for Excel</button>':'<button class="go" id="nmgo" onclick="saveNames()">Save names</button>'}</div></div>`;
+ <div style="margin-top:1rem;display:flex;flex-wrap:wrap;gap:.6rem;justify-content:flex-end">${forCopy?'<button class="go" id="nmgo" onclick="doCopyExcel(this)">📋 Copy for Excel</button><button class="go" id="nmsend" onclick="doSendSheets(this)">'+(S.shSent?'📤 Send again':'📤 Send to Sheets')+'</button>':'<button class="go" id="nmgo" onclick="saveNames()">Save names</button>'}</div>${forCopy?shSetupHTML():''}</div>`;
  m.style.display='block';const f=m.querySelector('.nmin');if(f)f.focus()}
 function readNames(){const nm={};document.querySelectorAll('#nmo .nmin').forEach(x=>nm[x.dataset.i]=x.value.trim().replace(/[\t\n]/g,' '));
  S.nm=S.nm||{};Object.keys(nm).forEach(i=>{const f=S.f[+i];if(f>=0){if(nm[i])S.nm[f]=nm[i];else delete S.nm[f]}});
@@ -973,13 +973,24 @@ function readNames(){const nm={};document.querySelectorAll('#nmo .nmin').forEach
  return nm}
 function saveNames(){readNames();closeNames();go()}
 function closeNames(){const m=$('nmo');if(m)m.style.display='none'}
-function doCopyExcel(btn){const rk=ranking(),d=new Date(),z=n=>String(n).padStart(2,'0'),day=d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate()),rounds=(S.sh||[]).length,mins=Math.round(gtNow()/60000),nm={};
+function buildRows(){const rk=ranking(),d=new Date(),z=n=>String(n).padStart(2,'0'),day=d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate()),rounds=(S.sh||[]).length,mins=Math.round(gtNow()/60000),nm={};
  Object.assign(nm,readNames());
- const rows=rk.map((e,k)=>{const i=e.i,cards=((S.sc&&S.sc[i])||[]).slice().sort((a,b)=>a-b).map(c=>(c+1)+' '+STRATEGY_CARDS[c][0]).join(' / ');
-  return [day,k+1,(nm[i]||'').toUpperCase(),F[S.f[i]][0].replace(/^The /,''),e.t,e.po,Math.max(0,e.so),e.ex,((S.tech&&S.tech[i])||[]).length,cards,rounds||'',mins||''].join('\t')}).join('\n');
+ return rk.map((e,k)=>{const i=e.i,cards=((S.sc&&S.sc[i])||[]).slice().sort((a,b)=>a-b).map(c=>(c+1)+' '+STRATEGY_CARDS[c][0]).join(' / ');
+  return [day,k+1,(nm[i]||'').toUpperCase(),F[S.f[i]][0].replace(/^The /,''),e.t,e.po,Math.max(0,e.so),e.ex,((S.tech&&S.tech[i])||[]).length,cards,rounds||'',mins||'']})}
+function doCopyExcel(btn){const rows=buildRows().map(r=>r.join('\t')).join('\n');
  const done=()=>{btn.textContent='✓ Copied – paste into Excel';setTimeout(closeNames,1200)};
  function fb(){const t=document.createElement('textarea');t.value=rows;document.body.appendChild(t);t.select();try{document.execCommand('copy');done()}catch(x){}t.remove()}
  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(rows).then(done,fb);else fb()}
+
+function shCfg(){try{return{u:(localStorage.getItem('tiShUrl')||'').trim(),k:(localStorage.getItem('tiShTok')||'').trim()}}catch(e){return{u:'',k:''}}}
+function shSave(){try{localStorage.setItem('tiShUrl',$('shurl').value.trim());localStorage.setItem('tiShTok',$('shtok').value.trim())}catch(e){}}
+function shSetupHTML(){const c=shCfg(),ok=c.u&&c.k;return `<details id="shset" style="margin-top:1rem"${ok?'':' open'}><summary style="cursor:pointer;color:var(--m)">Google Sheets setup</summary><div style="display:grid;gap:.5rem;margin-top:.6rem"><input type="text" id="shurl" placeholder="Web app URL (https://script.google.com/macros/s/…/exec)" value="${esc(c.u)}" oninput="shSave()" autocomplete="off"><input type="text" id="shtok" placeholder="Secret token" value="${esc(c.k)}" oninput="shSave()" autocomplete="off"><span class="spkhint">Saved only in this browser.</span></div></details>`}
+function doSendSheets(btn){shSave();const c=shCfg(),lbl=S.shSent?'📤 Send again':'📤 Send to Sheets';
+ if(!/^https:\/\/script\.google\.com\/.+\/exec$/.test(c.u)||!c.k){const d=$('shset');if(d)d.open=true;btn.textContent='Fill in URL and token first';setTimeout(()=>{btn.textContent=lbl},2400);return}
+ const rows=buildRows();btn.disabled=true;btn.textContent='Sending…';
+ fetch(c.u,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({token:c.k,rows:rows})})
+ .then(()=>{S.shSent=true;btn.disabled=false;btn.textContent='✓ Sent – check the sheet';setTimeout(closeNames,1800)})
+ .catch(()=>{btn.disabled=false;btn.textContent='Send failed – use Copy for Excel';setTimeout(()=>{btn.textContent=lbl},3000)})}
 function showSummary(){let m=$('sum');if(!m){m=document.createElement('div');m.id='sum';m.className='smo';document.body.appendChild(m)}renderSummary();m.style.display='block';m.scrollTop=0}
 function closeSummary(){const m=$('sum');if(m)m.style.display='none'}
 
