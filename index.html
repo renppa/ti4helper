@@ -302,6 +302,11 @@ button.elgo{background:#c62828;border-color:#ff6b6b;color:#fff;font-weight:700}b
 .lbmsg{padding:2rem 1rem;text-align:center;color:var(--m)}
 .lbwarn{background:#3a1d24;border:1px solid #7a3340;color:#ffb3a8;border-radius:.6rem;padding:.5rem .8rem;margin:.8rem 0;font-size:.9rem}
 @media(max-width:720px){.lbrow{grid-template-columns:2rem 1fr 2.8rem 2.6rem 2.6rem}.lbbar,.lbx{display:none}.lbpods{gap:.4rem}.lbpp{font-size:1.7rem}.lbk b{font-size:1.2rem}}
+
+
+@media(min-width:901px) and (max-width:999px){.tip-ticker{flex:0 1 28rem;margin-inline:auto}}
+@media(min-width:1000px){.top{position:relative}.tip-ticker{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);flex:none;width:min(26rem,31vw);margin:0}}
+@media(min-width:1250px){.tip-ticker{width:26rem}}
 </style></head><body><main>
 <div class="top"><div class="brand" id="brand">TWILIGHT IMPERIUM · AGENDA PHASE</div><div class="fi-clock" id="fiClock" aria-label="Finnish local time"><time id="fiClockTime">--:--:--</time></div><button class="ghost xlb" id="xlsb" onclick="copyExcel()" title="Copy game for Excel" hidden>XLS</button><div class="dots" id="dots"></div><div class="tip-ticker" id="tipTicker" hidden aria-label="Twilight Imperium strategy tips"><span class="tip-label">STRATEGY TIP</span><div class="tip-window"><div class="tip-track" id="tipTrack"></div></div></div><span class="apk" id="apk" hidden></span><button class="phb" id="phb" onclick="phClick()" hidden></button><div class="tools" id="tools"><div class="tbtns"><button class="elimb" id="elimb" onclick="elimOpen()" title="Eliminate a player from the game" hidden>✕ Eliminate player</button><button class="ghost logb" id="lbb" onclick="lbOpen()" title="Series leaderboard from Google Sheets">🏆 Leaderboard</button><button class="ghost logb" id="logb" onclick="openLog()" title="View action log">View Log</button><button class="ghost undob" id="fontb" onclick="cycleFont()" title="Change font">Aa</button><button class="ghost undob" id="undob" onclick="undo()" title="Undo the last action" disabled>↶ Undo</button></div><button class="ghost tlt" id="tlt" title="Tools" aria-label="Show tools" onclick="this.parentNode.classList.toggle('open')"><span>Tools</span><i>‹</i></button></div></div>
 <div id="app"></div><div class="logmodal" id="logmodal" onclick="if(event.target===this)closeLog()"><div class="logbox"><div class="loghead"><h3>Action Log</h3><button class="ghost logb" onclick="closeLog()">Close</button></div><div id="logentries"></div></div></div><div class="foot"><button class="ghost" onclick="if(confirm('Start over?'))reset()">New Game</button></div></main>
@@ -1036,10 +1041,12 @@ function lbOpen(){let m=$('lbm');if(!m){m=document.createElement('div');m.id='lb
 function lbClose(){const m=$('lbm');if(m)m.style.display='none'}
 function lbConnect(){shSave('lb');lbLoad()}
 function lbLoad(){if(!lbOk()){lbRender();return}const c=shCfg();LB.loading=true;LB.err='';lbRender();
- return fetch(c.u+'?a=leaderboard&token='+encodeURIComponent(c.k)).then(r=>r.json()).then(j=>{
-  if(!j||j.error||!Array.isArray(j.rows))throw new Error(j&&j.error||'bad data');
+ return fetch(c.u+'?a=leaderboard&token='+encodeURIComponent(c.k)).then(r=>r.text()).then(t=>{
+  let j;try{j=JSON.parse(t)}catch(e){throw new Error('notjson')}
+  if(!j||j.error||!Array.isArray(j.rows))throw new Error(j&&j.error||'baddata');
   try{localStorage.setItem('tiLb',JSON.stringify({t:Date.now(),d:j}))}catch(e){}
-  LB.loading=false;lbRender()}).catch(e=>{LB.loading=false;LB.err=/forbidden/.test(String(e.message))?'Wrong token – check Google Sheets setup.':'Could not reach the sheet.';lbRender()})}
+  LB.loading=false;lbRender()}).catch(e=>{LB.loading=false;const m=String(e.message||e);
+  LB.err=/forbidden/.test(m)?'Wrong token – check Google Sheets setup.':m==='notjson'?'The sheet answered, but not with leaderboard data. Deploy a new version of the Apps Script (Deploy → Manage deployments → pencil → New version).':m==='sheet not found'?'The sheet "Standings" was not found.':m==='baddata'?'The sheet returned unexpected data.':'Could not reach the sheet. Check that the web app URL ends in /exec and access is set to "Anyone".';lbRender()})}
 function lbRender(){const m=$('lbm');if(!m)return;const ch=lbCache(),d=ch&&ch.d,rows=d?d.rows:[],ok=lbOk(),med=['🥇','🥈','🥉'];
  const num=(v,g)=>typeof v==='number'?(g?v.toFixed(g):String(v)):'–',pct=v=>typeof v==='number'?Math.round(v*100)+'%':'–';
  const mx=Math.max(1,...rows.map(r=>r.points||0));
@@ -1325,5 +1332,41 @@ const _go0=go;go=function(){if(VR)vrAbort();return _go0.apply(this,arguments)};
 
 function updateFinnishClock(){const el=document.getElementById('fiClockTime');if(!el)return;const now=new Date();el.textContent=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Helsinki',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(now);el.dateTime=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Helsinki',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(now).replace(' ','T');}
 updateFinnishClock();setInterval(updateFinnishClock,60000);
-reset();
+/* ===== AUTOSAVE / RESUME ===== */
+var SAVE_ON=false,SV_UHN=-1,SV_UHL=null;
+const SVK='ti4GameV1',SVU='ti4GameUH';
+function svWrite(){if(!SAVE_ON||!S||!S.n)return;
+ try{localStorage.setItem(SVK,JSON.stringify({v:1,at:Date.now(),s:ser(S),log:ACTION_LOG.slice(-80).map(x=>({time:+x.time,label:x.label,detail:x.detail}))}))}catch(e){}
+ const last=UH.length?UH[UH.length-1]:null;
+ if(UH.length!==SV_UHN||last!==SV_UHL){try{localStorage.setItem(SVU,JSON.stringify(UH.slice(-40)))}catch(e){try{localStorage.setItem(SVU,JSON.stringify(UH.slice(-8)))}catch(x){}}SV_UHN=UH.length;SV_UHL=last}}
+function svClear(){try{localStorage.removeItem(SVK);localStorage.removeItem(SVU)}catch(e){}SV_UHN=-1;SV_UHL=null}
+function svLoad(){try{const t=localStorage.getItem(SVK);if(!t)return null;const o=JSON.parse(t);if(!o||o.v!==1||!o.s)return null;const g=des(o.s);if(!g||!g.n||!g.f||!g.f.length)return null;o.g=g;try{o.uh=JSON.parse(localStorage.getItem(SVU)||'[]')}catch(e){o.uh=[]}return o}catch(e){return null}}
+function svRestore(o){const dt=Math.max(0,Date.now()-o.at),R=o.g;
+ if(R.gts!=null)R.gts+=dt;if(R.ap&&R.ap.run)R.ap.t0+=dt;if(R.sT&&R.sT.run)R.sT.t0+=dt;if(R.t0&&!R.te)R.t0+=dt;
+ const keep={v:R.v,t0:R.t0,te:R.te,rs:R.rs};
+ S=R;UH=Array.isArray(o.uh)?o.uh:[];ACTION_LOG.length=0;(o.log||[]).forEach(x=>ACTION_LOG.push({time:new Date(x.time),label:x.label,detail:x.detail}));
+ hideOv();go();
+ if(S.view==='action'&&S.sT&&S.sT.open)openStrat();
+ if(S.view==='agenda'&&S.step===4&&S.ag){S.v=keep.v;S.t0=keep.t0;S.te=keep.te;S.rs=keep.rs;
+  if(mode(S.ag)!=='res'&&$('vb')){rv();updateRiderInfo();renderFV()}
+  if(S.rs){let ov=$('ov');if(!ov){ov=document.createElement('div');ov.id='ov';ov.className='ov';document.body.appendChild(ov)}ov.style.display='block';showRes()}}
+ updUndo();SV_UHN=UH.length;SV_UHL=UH.length?UH[UH.length-1]:null;
+ toastMsg('Game restored – continuing where you left off','#7be0a0')}
+function svAsk(o){const g=o.g,ph=g.view==='action'?(g.stat?'Status phase':'Action phase'):(g.step>=3?'Agenda phase':'Setup'),rd=(g.sh||[]).length,
+  d=new Date(o.at),z=n=>String(n).padStart(2,'0'),when=d.toLocaleDateString()===new Date().toLocaleDateString()?z(d.getHours())+':'+z(d.getMinutes()):d.toLocaleDateString()+' '+z(d.getHours())+':'+z(d.getMinutes()),
+  fl=g.f.filter(x=>x>=0).map(x=>esc(F[x][1])).join(', ');
+ const m=document.createElement('div');m.id='rsm';m.className='mo';m.style.display='flex';m.style.zIndex=100000;
+ m.innerHTML=`<div class="mb" style="max-width:30rem"><div class="mh"><h3>Continue previous game?</h3></div>
+ <p class="stn" style="margin:.4rem 0 .2rem">${g.n} players · ${ph}${rd?' · round '+rd:''} · saved ${when}</p>
+ ${fl?`<p class="stn" style="margin:.2rem 0 1rem;opacity:.75">${fl}</p>`:''}
+ <div style="display:flex;gap:.7rem;justify-content:flex-end;flex-wrap:wrap"><button class="ghost" id="rsn">Start a new game</button><button class="go" id="rsc">▶ Continue game</button></div></div>`;
+ document.body.appendChild(m);
+ $('rsc').onclick=()=>{m.remove();SAVE_ON=true;svRestore(o)};
+ $('rsn').onclick=()=>{m.remove();svClear();SAVE_ON=true}}
+const _reset1=reset;reset=function(){_reset1.apply(this,arguments);if(SAVE_ON)svClear()};
+setInterval(svWrite,2500);
+window.addEventListener('pagehide',svWrite);window.addEventListener('beforeunload',svWrite);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)svWrite()});
+_reset1();
+(function(){const o=svLoad();if(o)svAsk(o);else SAVE_ON=true})();
 </script></body></html>
