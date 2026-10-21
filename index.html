@@ -1001,16 +1001,26 @@ function exNames(){try{return JSON.parse(localStorage.getItem('tiNames')||'[]')}
 function namesBtn(){const c=S.f.filter(f=>f>=0&&S.nm&&S.nm[f]).length;return '<div class="namesrow" style="margin:.2rem 0 1rem"><button class="ghost" onclick="openNames(false)">Names (optional)</button>'+(c?'<span class="spkhint" style="margin-left:.8rem">'+c+' / '+S.f.length+' names set</span>':'')+'</div>'}
 function nmGet(i){return ((S.nm||{})[S.f[i]]||'')}
 function copyExcel(){openNames(true)}
+var NM_LAST=null;
+function sheetNames(){const c=lbCache();return c&&c.d&&Array.isArray(c.d.rows)?c.d.rows.map(r=>String(r.name||'').trim()).filter(Boolean):[]}
+function nmAll(){const seen=new Map();sheetNames().concat(exNames()).forEach(n=>{const k=n.toLowerCase();if(!seen.has(k))seen.set(k,n)});return [...seen.values()].sort((a,b)=>a.localeCompare(b))}
+function nmChips(){const box=$('nmchips');if(!box)return;
+ const used=new Set([...document.querySelectorAll('#nmo .nmin')].map(x=>x.value.trim().toLowerCase()).filter(Boolean)),all=nmAll(),names=all.filter(n=>!used.has(n.toLowerCase()));
+ box.innerHTML=names.length?'<div style="color:var(--m);font-size:.78rem;margin:.9rem 0 .4rem">'+(sheetNames().length?'Players from the sheet – tap to add':'Previous names – tap to add')+' · or type a new name</div><div style="display:flex;flex-wrap:wrap;gap:.4rem;max-height:9rem;overflow:auto">'+names.map(n=>`<button class="ghost" style="font-size:.8rem;padding:.2rem .65rem" data-n="${esc(n)}" onclick="nmPick(this.dataset.n)">${esc(n)}</button>`).join('')+'</div>':'';
+ const dl=$('nmdl');if(dl)dl.innerHTML=all.map(n=>`<option value="${esc(n)}">`).join('')}
+function nmPick(n){const ins=[...document.querySelectorAll('#nmo .nmin')];const t=(NM_LAST&&document.body.contains(NM_LAST)&&!NM_LAST.value.trim())?NM_LAST:ins.find(x=>!x.value.trim());if(!t)return;t.value=n;const nx=ins.find(x=>!x.value.trim());nmChips();NM_LAST=nx||null;if(nx)nx.focus()}
 function openNames(forCopy){let m=$('nmo');if(!m){m=document.createElement('div');m.id='nmo';m.className='smo';m.style.zIndex=99999;document.body.appendChild(m)}
- const ord=forCopy?ranking().map(e=>e.i):S.f.map((x,i)=>i).filter(i=>S.f[i]>=0),known=exNames();
+ const ord=forCopy?ranking().map(e=>e.i):S.f.map((x,i)=>i).filter(i=>S.f[i]>=0),known=nmAll();
  m.innerHTML=`<div class="smb" style="max-width:34rem"><div class="mh"><h3>${forCopy?'Who played which faction?':'Player names (optional)'}</h3><button onclick="closeNames()">✕ Close</button></div>
  <datalist id="nmdl">${known.map(n=>`<option value="${esc(n)}">`).join('')}</datalist>
- ${ord.map((i,k)=>`<div style="display:flex;align-items:center;gap:.7rem;margin:.55rem 0"><span style="width:1.6rem;color:var(--m)">${forCopy?k+1:'P'+(i+1)}</span><span class="tdot" style="--fc:${pcol(i)}"></span><b style="flex:0 0 9rem">${esc(F[S.f[i]][1])}</b><input type="text" class="nmin" data-i="${i}" list="nmdl" value="${esc(nmGet(i))}" placeholder="Player name" autocomplete="off"></div>`).join('')}
+ ${ord.map((i,k)=>`<div style="display:flex;align-items:center;gap:.7rem;margin:.55rem 0"><span style="width:1.6rem;color:var(--m)">${forCopy?k+1:'P'+(i+1)}</span><span class="tdot" style="--fc:${pcol(i)}"></span><b style="flex:0 0 9rem">${esc(F[S.f[i]][1])}</b><input type="text" class="nmin" data-i="${i}" list="nmdl" value="${esc(nmGet(i))}" placeholder="Player name" autocomplete="off" oninput="nmChips()" onfocus="NM_LAST=this"></div>`).join('')}
+ <div id="nmchips"></div>
  <div style="margin-top:1rem;display:flex;flex-wrap:wrap;gap:.6rem;justify-content:flex-end">${forCopy?'<button class="go" id="nmgo" onclick="doCopyExcel(this)">📋 Copy for Excel</button><button class="go" id="nmsend" onclick="doSendSheets(this)">'+(S.shSent?'📤 Send again':'📤 Send to Sheets')+'</button>':'<button class="go" id="nmgo" onclick="saveNames()">Save names</button>'}</div>${forCopy?shSetupHTML():''}</div>`;
- m.style.display='block';const f=m.querySelector('.nmin');if(f)f.focus()}
+ m.style.display='block';nmChips();const f=m.querySelector('.nmin');if(f)f.focus();
+ if(lbOk()){const c=lbCache();if(!c||Date.now()-c.t>300000){const pr=lbLoad();if(pr&&pr.then)pr.then(()=>nmChips())}}}
 function readNames(){const nm={};document.querySelectorAll('#nmo .nmin').forEach(x=>nm[x.dataset.i]=x.value.trim().replace(/[\t\n]/g,' '));
  S.nm=S.nm||{};Object.keys(nm).forEach(i=>{const f=S.f[+i];if(f>=0){if(nm[i])S.nm[f]=nm[i];else delete S.nm[f]}});
- try{const all=new Set(exNames());Object.values(nm).forEach(n=>{if(n)all.add(n)});localStorage.setItem('tiNames',JSON.stringify([...all].sort()))}catch(e){}
+ try{const all=new Set(exNames()),low=new Set([...all].map(x=>x.toLowerCase()));Object.values(nm).forEach(n=>{if(n&&!low.has(n.toLowerCase())){all.add(n);low.add(n.toLowerCase())}});localStorage.setItem('tiNames',JSON.stringify([...all].sort()))}catch(e){}
  return nm}
 function saveNames(){readNames();closeNames();go()}
 function closeNames(){const m=$('nmo');if(m)m.style.display='none'}
@@ -1058,7 +1068,7 @@ function lbRender(){const m=$('lbm');if(!m)return;const ch=lbCache(),d=ch&&ch.d,
  <div class="lbpods">${rows.slice(0,3).map((r,i)=>`<div class="lbpod p${i+1}"><div class="lbmed">${med[i]}</div><div class="lbpn">${esc(r.name)}</div><div class="lbpp">${num(r.points)}<small>pts</small></div><div class="lbps">${num(r.wins)} W · ${num(r.games)} G · ${pct(r.winPct)}</div></div>`).join('')}</div>
  <div class="lbtab"><div class="lbrow hd"><span class="lbrk">#</span><span>Player</span><span class="lbx"></span><span class="lbpt" style="font-size:.68rem;color:var(--m)">Pts</span><span class="lbn">Games</span><span class="lbn">Wins</span><span class="lbn lbx">Win %</span><span class="lbn lbx">Avg VP</span><span class="lbn lbx">Best VP</span></div>
  ${rows.map((r,i)=>`<div class="lbrow${i<3?' r'+(i+1):''}"><span class="lbrk">${i<3?med[i]:esc(String(r.rank??i+1))}</span><b>${esc(r.name)}</b><span class="lbbar"><i style="width:${Math.round((r.points||0)/mx*100)}%"></i></span><span class="lbpt">${num(r.points)}</span><span class="lbn">${num(r.games)}</span><span class="lbn">${num(r.wins)}</span><span class="lbn lbx">${pct(r.winPct)}</span><span class="lbn lbx">${num(r.avgVp,1)}</span><span class="lbn lbx">${num(r.bestVp)}</span></div>`).join('')}</div>`;
- m.innerHTML=`<div class="lbw"><div class="lbh"><div><h2>LEADERBOARD</h2><div class="lbsub">Twilight Imperium series ${sub?'· '+sub:''}</div></div><div style="display:flex;gap:.5rem"><button onclick="lbLoad()" ${ok?'':'disabled'}>↻ Refresh</button><button onclick="lbClose()">✕ Close</button></div></div>${LB.err?`<div class="lbwarn">${esc(LB.err)}${ch?' Showing the last saved data.':''}</div>`:''}${body}</div>`}
+ m.innerHTML=`<div class="lbw"><div class="lbh"><div><h2>LEADERBOARD</h2><div class="lbsub">Twilight Imperium series ${sub?'· '+sub:''}</div></div><div style="display:flex;gap:.5rem"><button onclick="lbLoad()" ${ok?'':'disabled'}>↻ Refresh</button><button onclick="lbClose()">✕ Close</button></div></div>${LB.err?`<div class="lbwarn">${esc(LB.err)}${ch?' Showing the last saved data.':''}</div>`:''}${body}${ok?`<div style="margin-top:1.4rem">${shSetupHTML('lb')}<div style="margin-top:.7rem;text-align:right"><button class="go" onclick="lbConnect()">Save &amp; refresh</button></div></div>`:''}</div>`}
 document.addEventListener('keydown',e=>{const m=$('lbm');if(e.key==='Escape'&&m&&m.style.display==='block')lbClose()});
 function showSummary(){let m=$('sum');if(!m){m=document.createElement('div');m.id='sum';m.className='smo';document.body.appendChild(m)}renderSummary();m.style.display='block';m.scrollTop=0}
 function closeSummary(){const m=$('sum');if(m)m.style.display='none'}
