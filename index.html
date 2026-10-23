@@ -7,7 +7,7 @@
          Leave empty to use direct PeerJS connections instead (works on the same Wi-Fi only).
    key : optional shared secret, must match KEY in the Apps Script (leave empty if unused)
    turn: optional TURN servers for PeerJS mode, e.g. [{urls:'turn:host:3478',username:'u',credential:'p'}] */
-window.TI4_RELAY={url:'https://script.google.com/macros/s/AKfycbwjwBz6zsZeFura98-7fi7zQw1CxbTYybJCeqYBFE27pGEPC61ymnA8Z3nqSclzR7O87g/exec',key:'',turn:[]};
+window.TI4_RELAY={url:'',key:'',turn:[]};
 </script>
 <style>
 :root{--fb:"Segoe UI",system-ui,Roboto,sans-serif;--fs:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;--ink:#0a0818;--p:#161330;--p2:#211d44;--t:#f1ecdf;--m:#9d98bd;--gold:#e9c46a;--for:#4fd8c4;--ag:#ff7b6b;--ab:#8f8bb0}
@@ -402,6 +402,14 @@ button.elgo{background:#c62828;border-color:#ff6b6b;color:#fff;font-weight:700}b
 .tphem{color:var(--m);padding:10px 2px}
 .tphsc{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--p);border:1px solid #3a3566;border-radius:12px;padding:8px 8px 8px 14px;margin-bottom:8px}.tphsc .n{font-weight:700;font-size:18px}.tphsc button.on{background:var(--for);color:#04201c;border-color:var(--for);font-weight:700}
 .tphpass{width:100%;font-weight:700;font-size:20px!important;padding:16px!important;margin-top:2px}.tphpass.on{background:#8e1414;border-color:#ff5a5a;color:#fff}
+
+.tphto{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}.tphtob{border-left:8px solid var(--fc)!important}.tphtob.on{background:var(--gold)!important;color:#201400!important;border-color:var(--gold)!important;font-weight:700}
+.tphwt{width:100%;background:var(--p);border:.12rem solid #3a3566;border-radius:12px;color:var(--t);font:inherit;font-size:16px;padding:10px;margin:0 0 8px;resize:vertical}
+.tphmsg{background:var(--p);border:1px solid #3a3566;border-radius:12px;padding:10px 12px;margin-bottom:8px}.tphmsg.in{border-color:var(--gold)}.tphmsg.out{opacity:.8}
+.tphmsg .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;color:var(--m)}.tphmsg .bd{white-space:pre-wrap;word-break:break-word}
+.tphnotes{position:fixed;top:1rem;left:50%;transform:translateX(-50%);z-index:99998;display:flex;flex-direction:column;gap:.5rem;align-items:center;pointer-events:none}
+.tphn{background:#17142f;border:.15rem solid var(--gold);border-radius:1rem;padding:.6rem 1.3rem;font-size:1.5rem;font-weight:700;color:var(--t);box-shadow:0 0 2rem #000c}
+.tphn i{font-style:normal;padding:.1rem .7rem;border-radius:999px;background:var(--fc);color:var(--ik)}
 </style>
 </head><body><main>
 <div class="top"><div class="brand" id="brand">TWILIGHT IMPERIUM · AGENDA PHASE</div><div class="fi-clock" id="fiClock" aria-label="Finnish local time"><time id="fiClockTime">--:--:--</time></div><button class="ghost xlb" id="xlsb" onclick="copyExcel()" title="Copy game for Excel" hidden>XLS</button><div class="dots" id="dots"></div><div class="tip-ticker" id="tipTicker" hidden aria-label="Twilight Imperium strategy tips"><span class="tip-label">STRATEGY TIP</span><div class="tip-window"><div class="tip-track" id="tipTrack"></div></div></div><span class="apk" id="apk" hidden></span><button class="phb" id="phb" onclick="phClick()" hidden></button><div class="tools" id="tools"><div class="tbtns"><button class="ghost" id="rndb" onclick="rndOpen()" title="Pick a random faction">🎲 Randomizer</button><button class="elimb" id="elimb" onclick="elimOpen()" title="Eliminate a player from the game" hidden>✕ Eliminate player</button><button class="ghost undob" id="undob" onclick="undo()" title="Undo the last action" disabled>↶ Undo</button><button class="ghost logb" id="logb" onclick="openLog()" title="View action log">View Log</button><button class="ghost logb" id="lbb" onclick="lbOpen()" title="Series leaderboard from Google Sheets">🏆 Leaderboard</button><button class="ghost logb" id="tphb" onclick="phOpen()" title="Let players add objectives from their phones">📱 Phones</button><button class="ghost logb" id="tpjb" onclick="pjOpen()" title="Join a game from this phone with a code">📲 Join</button><button class="ghost undob" id="fontb" onclick="cycleFont()" title="Change font">Aa</button><span class="zm"><button class="ghost" title="Zoom out 5%" onclick="zoomBy(-5)">−</button><button class="ghost" id="zoomv" title="Reset zoom to 70%" onclick="zoomSet(70)">100%</button><button class="ghost" title="Zoom in 5%" onclick="zoomBy(5)">＋</button></span><button class="ghost" onclick="helpOpen()">Help</button></div><button class="ghost tlt" id="tlt" title="Tools" aria-label="Show tools" onclick="this.parentNode.classList.toggle('open')"><i>‹</i></button></div></div>
@@ -1675,10 +1683,25 @@ function hStart(){
    if(hRetry<7){hstat='conn';hUi();setTimeout(hStart,2000)}else{hstat='err';hUi()}
   }else if(e.type!=='peer-unavailable'){hstat='err';hUi()}})}
 function hStop(){relayOn=false;clearTimeout(hTm);hCnt=0;ls('ti4RoomOn',null);try{hp&&hp.destroy()}catch(e){}hp=null;hc.clear();hstat='off';hUi()}
+function hNote(f,t){
+ logAction('Whisper',logPlayer(f)+' → '+logPlayer(t));
+ let box=$('tphnotes');if(!box){box=document.createElement('div');box.id='tphnotes';box.className='tphnotes';document.body.appendChild(box)}
+ const el=document.createElement('div'),chip=i=>`<i style="--fc:${esc(pcol(i))};--ik:${inkOn(pcol(i))}">${esc(F[S.f[i]][1])}</i>`;
+ el.className='tphn';el.innerHTML=`🤫 ${chip(f)} whispered to ${chip(t)}`;
+ box.appendChild(el);setTimeout(()=>el.remove(),9000)}
 function hData(c,d){
  if(!d||typeof d!=='object')return;
  const er=m=>{try{c.send({t:'err',m})}catch(e){}};
+ if(d.t==='seat'){c._seat=Number.isInteger(d.i)?d.i:-1;return}
+ if(d.t==='wnote'){const f=d.from,t=d.to;if(actionOk()&&Number.isInteger(f)&&Number.isInteger(t)&&f!==t&&f>=0&&t>=0&&f<S.f.length&&t<S.f.length)hNote(f,t);return}
  if(!actionOk())return er('The game is not in the Action / Status phase yet.');
+ if(d.t==='wh'){
+  const to=d.to,txt=String(d.text||'').trim().slice(0,300),fr=c._seat;
+  if(!(fr>=0&&Number.isInteger(to)&&to>=0&&to<S.f.length&&to!==fr&&txt))return er('Message could not be sent.');
+  const tg=[...hc].filter(x=>x._seat===to);
+  if(!tg.length)return er('That player is not connected with a phone.');
+  const m={t:'wh',list:[{id:Date.now()+'-'+Math.floor(Math.random()*1e6),from:fr,text:txt,t:Date.now()}]};
+  tg.forEach(x=>{try{x.send(m)}catch(e){}});hNote(fr,to);return}
  if(d.t==='card'||d.t==='pass'){
   const i=d.i;
   if(!scOk())return er('Strategy cards are not in play right now.');
@@ -1727,6 +1750,32 @@ window.phStop=hStop;
 setInterval(()=>{if(hp&&hc.size&&S)hPush(false)},500);
 
 /* ---------- PHONE (the player's own device) ---------- */
+let ptab='g',pw='',wto=null,inbox=[];
+const inKey=()=>'ti4Inbox:'+ccode,fmtT=t=>new Date(t).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+function inLoad(){try{inbox=JSON.parse(ls(inKey())||'[]')}catch(e){inbox=[]}}
+function inAdd(m){if(inbox.some(x=>x.id===m.id))return false;inbox.push(m);ls(inKey(),JSON.stringify(inbox.slice(-100)));return true}
+function wRecv(list){let got=null;(list||[]).forEach(x=>{const q=cs&&cs.pl[x.from];const m={id:x.id,dir:'in',from:x.from,n:q?q.n:'Player '+(x.from+1),c:q?q.c:'#888',text:x.text,t:x.t||Date.now(),read:false};if(inAdd(m))got=m});if(got){if(navigator.vibrate)navigator.vibrate([40,60,40]);pjMsg('🤫 Whisper from '+got.n,4000)}}
+function pjSeatSync(){if(!RELAY&&cc&&cstat==='on'){try{cc.send({t:'seat',i:seat==null?-1:seat})}catch(e){}}}
+function wSend(){
+ const txt=pw.trim();
+ if(wto==null||!cs||!cs.pl[wto]||wto===seat){pjMsg('Choose who to whisper to.',3000);pjRender();return}
+ if(!txt){pjMsg('Write a message first.',3000);pjRender();return}
+ if(cstat!=='on')return;
+ const to=wto,q=cs.pl[to];
+ const ok=()=>{inAdd({id:'o'+Date.now()+Math.random(),dir:'out',from:to,n:q.n,c:q.c,text:txt,t:Date.now(),read:true});pw='';pjMsg('🤫 Sent to '+q.n,2500);if(navigator.vibrate)navigator.vibrate(15);pjRender()};
+ const bad=m=>{pjMsg(m||'Sending failed.',4000);pjRender()};
+ if(RELAY)rpost({a:'whisper',room:ccode,cid:pCid,to,text:txt}).then(r=>r.ok?ok():bad(r.err)).catch(()=>bad('Sending failed – check the connection.'));
+ else if(cc){try{cc.send({t:'wh',to,text:txt});ok()}catch(e){bad()}}}
+function wView(dis){
+ const others=cs.pl.map((q,i)=>[q,i]).filter(([q,i])=>i!==seat);
+ if(wto==null||wto===seat||!cs.pl[wto])wto=null;
+ let h='<h3>Send a whisper</h3><div class="tphto">'+others.map(([q,i])=>`<button class="tphtob${wto===i?' on':''}" style="--fc:${esc(q.c)}" data-a="wto" data-i="${i}">${esc(q.n)}</button>`).join('')+'</div>';
+ h+=`<textarea id="pjw" class="tphwt" maxlength="300" rows="3" placeholder="Message – only the receiver can read it…">${esc(pw)}</textarea>`;
+ h+=`<button class="go" style="width:100%" data-a="wsend"${dis}>${wto!=null?'🤫 Send to '+esc(cs.pl[wto].n):'Choose a player'}</button>`;
+ h+='<p class="tphem" style="font-size:13px">The main screen shows that you whispered and to whom – but not what you wrote.</p><h3>Messages</h3>';
+ const L=inbox.slice().reverse();
+ h+=L.length?L.map(m=>`<div class="tphmsg ${m.dir}"><div class="hd"><span class="tphch" style="--fc:${esc(m.c)};--ik:${inkOn(m.c)}">${m.dir==='in'?'From ':'To '}${esc(m.n)}</span><small>${fmtT(m.t)}</small></div><div class="bd">${esc(m.text)}</div></div>`).join(''):'<div class="tphem">No messages yet.</div>';
+ return h}
 let pTm=null,pCid='',pVer=-1,pFast=0,pBusy=false,cRel=false;
 let cstage='',ctm=null,cp=null,cc=null,ccode='',cs=null,cstat='off',cmsg='',cEver=false,cov=null,ct=null,cr=null,pstage=1,pq='',seat=null,seatN='';
 try{const o=JSON.parse(ls('ti4Seat')||'null');if(o){seat=o[0];seatN=o[1]}}catch(e){}
@@ -1736,7 +1785,7 @@ function pjConnect(code){
  code=(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
  pjDrop();
  if(code.length<4){cstat='off';pjMsg('Enter the 4-character code.');pjRender();return}
- ccode=code;ls('ti4Join',code);cstat='conn';cstage='Contacting relay server…';pjMsg('');pjRender();
+ ccode=code;ls('ti4Join',code);inLoad();cstat='conn';cstage='Contacting relay server…';pjMsg('');pjRender();
  clearTimeout(ctm);ctm=setTimeout(()=>{if(cstat==='conn'||(cstat==='on'&&!cs)){const st=cstage;pjDrop();cstat='off';
   pjMsg('Could not connect ('+st+'). Make sure the phone is on the same Wi-Fi as the host (not mobile data, no guest network), the host has 📱 Phones open, and the code is right. If it still fails, a TURN relay or the Apps Script relay is needed.');pjRender()}},20000);
  if(RELAY){pCid=pCid||('c'+Math.random().toString(36).slice(2,9));pVer=-1;cRel=true;cstage='Contacting the game…';pjPoll();return}
@@ -1753,11 +1802,12 @@ function pjConnect(code){
 function pjLink(){
  if(!cp||cp.destroyed)return;
  const c=cp.connect(PF+ccode,{serialization:'json',reliable:true});cc=c;
- c.on('open',()=>{cstat='on';cEver=true;cstage='Linked, waiting for game data…';pjMsg('');pjRender()});
+ c.on('open',()=>{cstat='on';cEver=true;cstage='Linked, waiting for game data…';pjMsg('');pjSeatSync();pjRender()});
  c.on('iceStateChanged',s=>{cstage='Opening link ('+s+')…';if(s==='failed'&&!cEver){pjDrop();cstat='off';pjMsg('Direct connection failed (blocked by the network). Try the same Wi-Fi as the host, or set up a TURN relay.')}pjRender()});
  c.on('data',d=>{
   if(!d)return;
   if(d.t==='st'){cs=d;clearTimeout(ctm);pjRender()}
+  else if(d.t==='wh'){wRecv(d.list);pjRender()}
   else if(d.t==='err'){pjMsg(d.m,3500);pjRender()}});
  c.on('close',()=>{if(cc!==c)return;cstat='lost';pjRender();pjRetry()});
  c.on('error',()=>{})}
@@ -1765,7 +1815,7 @@ function pjRetry(){clearTimeout(cr);cr=setTimeout(()=>{if(cstat==='lost'&&cp&&!c
 function pjPoll(){
  clearTimeout(pTm);if(!cRel||pBusy)return;
  pBusy=true;
- rpost({a:'poll',room:ccode,cid:pCid,v:pVer}).then(r=>{
+ rpost({a:'poll',room:ccode,cid:pCid,v:pVer,seat:seat==null?-1:seat}).then(r=>{
   if(!cRel)return;
   if(!r.ok)throw new Error(r.err||'failed');
   if(!r.room){
@@ -1774,6 +1824,7 @@ function pjPoll(){
   }else{
    if(r.state!==undefined){cs=r.state;pVer=r.v;clearTimeout(ctm)}
    (r.replies||[]).forEach(x=>pjMsg(x.m,3500));
+   if(r.wh&&r.wh.length)wRecv(r.wh);
    if(cs){cEver=true;if(r.host===false){cstat='lost';pjMsg('Host not reachable – waiting…')}else{if(cstat!=='on')pjMsg('');cstat='on'}}
   }
   pjRender()
@@ -1786,7 +1837,8 @@ function pjSend(m){
  if(cstat==='on'&&cc){try{cc.send(m);if(navigator.vibrate)navigator.vibrate(15)}catch(e){}}}
 function pjRender(){
  if(!cov)return;
- const act=document.activeElement,keep=act&&act.id==='pjq'?[act.selectionStart,act.selectionEnd]:null;
+ const act=document.activeElement,keep=act&&(act.id==='pjq'||act.id==='pjw')?[act.id,act.selectionStart,act.selectionEnd]:null;
+ if(ptab==='w'&&inbox.some(x=>x.dir==='in'&&!x.read)){inbox.forEach(x=>x.read=true);ls(inKey(),JSON.stringify(inbox.slice(-100)))}
  let h=`<div class="tphw"><div class="tphtop"><b class="tphb">TI4 · PHONE</b><button class="ghost" data-a="leave">Leave</button></div>`;
  if(cmsg)h+=`<div class="tphm">${esc(cmsg)}</div>`;
  if(cstat==='lost')h+='<div class="tphlost">Connection lost – reconnecting…</div>';
@@ -1802,7 +1854,10 @@ function pjRender(){
    h+='<h3>Who are you?</h3><div class="tphseats">'+cs.pl.map((p,i)=>`<button class="tphseat" style="--fc:${esc(p.c)}" data-a="seat" data-i="${i}"><b>${esc(p.n)}</b>${p.nm?`<span>${esc(p.nm)}</span>`:''}<small>${p.vp} VP</small></button>`).join('')+'</div>';
   }else{
    const me=cs.pl[seat],live=cstat==='on',dis=live?'':' disabled';
+   const unreadN=inbox.filter(x=>x.dir==='in'&&!x.read).length;
    h+=`<div class="tphme" style="--fc:${esc(me.c)}"><b>${esc(me.n)}</b><button class="ghost" data-a="chseat">change</button><span class="vp">${me.vp} / ${cs.goal} VP</span></div>`;
+   h+=`<div class="tphseg" style="margin-top:12px"><button data-a="tab" data-t="g" class="${ptab==='g'?'on':''}">Game</button><button data-a="tab" data-t="w" class="${ptab==='w'?'on':''}">🤫 Whisper${unreadN?' ('+unreadN+')':''}</button></div>`;
+   if(ptab==='w'){h+=wView(dis)}else{
    if(cs.scOk&&(cs.sc[seat]||[]).length){
     const mc=cs.sc[seat],passed=mc.some(c=>cs.cs[c]===2);
     h+='<h3>Strategy cards</h3>'+mc.map(c=>{const st=cs.cs[c]||0;return`<div class="tphsc"><span class="n" style="color:${STRATEGY_CARDS[c][1]}">${c+1} ${esc(STRATEGY_CARDS[c][0])}</span><button class="${st?'on':''}" data-a="card" data-c="${c}"${dis}>${st?'✓ Played':'Mark played'}</button></div>`}).join('')
@@ -1817,11 +1872,13 @@ function pjRender(){
    const L=PO.map((q,k)=>[q,k]).filter(([q,k])=>q[1]===pstage&&!used.has(k)&&(!ql||(q[0]+' '+q[2]).toLowerCase().includes(ql)));
    h+=`<h3>Add an objective</h3><div class="tphseg"><button data-a="stage" data-s="1" class="${pstage===1?'on':''}">Stage I</button><button data-a="stage" data-s="2" class="${pstage===2?'on':''}">Stage II</button></div><input type="text" id="pjq" class="tphq" style="text-transform:none;letter-spacing:0;font-size:16px;text-align:left" placeholder="Search…" value="${esc(pq)}">`;
    h+=L.length?L.map(([q,k])=>`<button class="tphpo" data-a="add" data-k="${k}"${dis}>${esc(q[0])}<small>${esc(q[2])}</small></button>`).join(''):'<div class="tphem">Nothing to add here.</div>';
+   }
   }
  }
  h+='</div>';
+ if(h===cov._h)return;cov._h=h;
  const top=cov.scrollTop;cov.innerHTML=h;cov.scrollTop=top;
- if(keep){const e=$('pjq');if(e){e.focus();try{e.setSelectionRange(keep[0],keep[1])}catch(x){}}}}
+ if(keep){const e=$(keep[0]);if(e){e.focus();try{e.setSelectionRange(keep[1],keep[2])}catch(x){}}}}
 window.pjOpen=function(code){
  if(!cov){
   cov=document.createElement('div');cov.className='tphov';document.body.appendChild(cov);
@@ -1830,15 +1887,18 @@ window.pjOpen=function(code){
    if(a==='join'){const v=$('pjc');pjConnect(v?v.value:'')}
    else if(a==='leave')pjClose();
    else if(a==='cancel'){clearTimeout(ctm);pjDrop();cstat='off';pjMsg('');pjRender()}
-   else if(a==='seat'){seat=+b.dataset.i;seatN=cs.pl[seat].n;ls('ti4Seat',JSON.stringify([seat,seatN]));pjRender()}
-   else if(a==='chseat'){seat=null;pjRender()}
+   else if(a==='seat'){seat=+b.dataset.i;seatN=cs.pl[seat].n;ls('ti4Seat',JSON.stringify([seat,seatN]));pjSeatSync();pjRender()}
+   else if(a==='chseat'){seat=null;pjSeatSync();pjRender()}
+   else if(a==='tab'){ptab=b.dataset.t;pjRender()}
+   else if(a==='wto'){wto=+b.dataset.i;pjRender()}
+   else if(a==='wsend')wSend();
    else if(a==='stage'){pstage=+b.dataset.s;pjRender()}
    else if(a==='score')pjSend({t:'score',k,i:seat});
    else if(a==='card')pjSend({t:'card',c:+b.dataset.c,i:seat});
    else if(a==='pass'){const mc=cs.sc[seat]||[],passed=mc.some(c=>cs.cs[c]===2),open=mc.some(c=>!cs.cs[c]);
     if(passed||!open||confirm('You still have unplayed strategy cards. Pass anyway?'))pjSend({t:'pass',i:seat})}
    else if(a==='add'){if(PO[k]&&confirm('Add “'+PO[k][0]+'” to the board?'))pjSend({t:'add',k})}});
-  cov.addEventListener('input',e=>{if(e.target.id==='pjq'){pq=e.target.value;pjRender()}});
+  cov.addEventListener('input',e=>{if(e.target.id==='pjq'){pq=e.target.value;pjRender()}else if(e.target.id==='pjw')pw=e.target.value});
   cov.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='pjc')pjConnect(e.target.value)});
  }
  document.documentElement.style.zoom=1;
