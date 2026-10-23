@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>TI4 Helper</title>
+<script>
+/* ===== PHONE SETTINGS (edit here) =====
+   url : address of your Google Apps Script web app (ends in /exec). With it, phones connect from any network.
+         Leave empty to use direct PeerJS connections instead (works on the same Wi-Fi only).
+   key : optional shared secret, must match KEY in the Apps Script (leave empty if unused)
+   turn: optional TURN servers for PeerJS mode, e.g. [{urls:'turn:host:3478',username:'u',credential:'p'}] */
+window.TI4_RELAY={url:'https://script.google.com/macros/s/AKfycbwjwBz6zsZeFura98-7fi7zQw1CxbTYybJCeqYBFE27pGEPC61ymnA8Z3nqSclzR7O87g/exec',key:'',turn:[]};
+</script>
 <style>
 :root{--fb:"Segoe UI",system-ui,Roboto,sans-serif;--fs:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;--ink:#0a0818;--p:#161330;--p2:#211d44;--t:#f1ecdf;--m:#9d98bd;--gold:#e9c46a;--for:#4fd8c4;--ag:#ff7b6b;--ab:#8f8bb0}
 html{font-size:clamp(14px,1.3vw,44px)}*{box-sizing:border-box}
@@ -1615,6 +1623,10 @@ _reset1();
 
 /* ===== PHONES: players add / score public objectives from their own phone (PeerJS, code-based) ===== */
 (function(){
+const CFG=window.TI4_RELAY||{};
+const RELAY=(CFG.url||'').trim(),RELAY_KEY=CFG.key||'',TURN=CFG.turn||[];
+const rpost=o=>fetch(RELAY,{method:'POST',body:JSON.stringify(Object.assign({key:RELAY_KEY},o))}).then(r=>r.json());
+const ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:stun.cloudflare.com:3478'}].concat(TURN)};
 const AL='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',PF='ti4h-';
 const rc=()=>Array.from({length:4},()=>AL[Math.floor(Math.random()*AL.length)]).join('');
 const ls=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)}catch(e){}return null};
@@ -1622,18 +1634,34 @@ const actionOk=()=>S&&S.view==='action'&&S.f.length>0&&S.f.every(x=>x>=0);
 const scOk=()=>actionOk()&&!!S.sc&&!S.stat&&!(S.sT&&S.sT.open);
 
 /* ---------- HOST (the device running the game) ---------- */
+let hTm=null,hCnt=0,hRep=[],hBusy=false,hFail=0,hKicked=false,hAt=0,relayOn=false;
 let hp=null,hc=new Set(),hcode=ls('ti4Room')||'',hlast='',hstat='off',hmodal=null,hRetry=0;
 function hState(){const ok=actionOk();
  return{t:'st',ok,stat:!!S.stat,goal:S.goal,
   scOk:scOk(),sc:scOk()?S.sc.map(l=>(l||[]).slice().sort((a,b)=>a-b)):[],cs:Object.assign({},S.cs||{}),
   pl:ok?S.f.map((x,i)=>({n:F[x][1],c:pcol(i),nm:nmGet(i)||'',vp:vpOf(i).t,pa:scOk()&&(S.sc[i]||[]).some(c=>(S.cs||{})[c]===2)})):[],
   ob:ok?S.obj.map(o=>[o.k,o.s.slice()]):[]}}
-function hPush(force){const s=hState(),m=JSON.stringify(s);if(!force&&m===hlast)return;hlast=m;hc.forEach(c=>{try{c.send(s)}catch(e){}})}
+function hPush(force){if(RELAY){hKick();return}const s=hState(),m=JSON.stringify(s);if(!force&&m===hlast)return;hlast=m;hc.forEach(c=>{try{c.send(s)}catch(e){}})}
+function hKick(){if(!relayOn)return;if(hBusy){hKicked=true;return}clearTimeout(hTm);hTm=setTimeout(hTick,50)}
+function hTick(){
+ clearTimeout(hTm);if(!relayOn)return;
+ if(hBusy){hTm=setTimeout(hTick,300);return}
+ hBusy=true;
+ const s=hState(),m=JSON.stringify(s),send=m!==hlast||Date.now()-hAt>300000,reps=hRep.splice(0);
+ rpost({a:'sync',room:hcode,state:send?s:undefined,replies:reps}).then(r=>{
+  if(!r.ok)throw new Error(r.err||'failed');
+  if(send){hlast=m;hAt=Date.now()}
+  hFail=0;if(hstat!=='on'){hstat='on';hUi()}
+  if(r.n!==hCnt){hCnt=r.n;hUi()}
+  (r.cmds||[]).forEach(x=>hData({send:mm=>{if(mm&&mm.t==='err')hRep.push({cid:x.cid,m:mm.m})}},x.d));
+ }).catch(e=>{hRep=reps.concat(hRep);hFail++;if(hFail>=3&&hstat!=='err'){hstat='err';hUi()}})
+ .then(()=>{hBusy=false;if(relayOn){clearTimeout(hTm);hTm=setTimeout(hTick,hKicked?100:1200);hKicked=false}})}
 function hStart(){
+ if(RELAY){if(relayOn)return;if(!hcode)hcode=rc();ls('ti4Room',hcode);ls('ti4RoomOn','1');hstat='conn';relayOn=true;hFail=0;hlast='';hUi();hKick();return}
  if(hp)return;
  if(typeof Peer==='undefined'){hstat='nolib';hUi();return}
  if(!hcode)hcode=rc();ls('ti4Room',hcode);ls('ti4RoomOn','1');hstat='conn';hUi();
- const p=new Peer(PF+hcode);hp=p;
+ const p=new Peer(PF+hcode,{config:ICE});hp=p;
  p.on('open',()=>{hstat='on';hRetry=0;hUi()});
  p.on('connection',c=>{
   c.on('open',()=>{hc.add(c);try{c.send(hState())}catch(e){}hUi()});
@@ -1646,7 +1674,7 @@ function hStart(){
    hRetry++;if(hRetry===4){hcode=rc();ls('ti4Room',hcode)}
    if(hRetry<7){hstat='conn';hUi();setTimeout(hStart,2000)}else{hstat='err';hUi()}
   }else if(e.type!=='peer-unavailable'){hstat='err';hUi()}})}
-function hStop(){ls('ti4RoomOn',null);try{hp&&hp.destroy()}catch(e){}hp=null;hc.clear();hstat='off';hUi()}
+function hStop(){relayOn=false;clearTimeout(hTm);hCnt=0;ls('ti4RoomOn',null);try{hp&&hp.destroy()}catch(e){}hp=null;hc.clear();hstat='off';hUi()}
 function hData(c,d){
  if(!d||typeof d!=='object')return;
  const er=m=>{try{c.send({t:'err',m})}catch(e){}};
@@ -1680,14 +1708,14 @@ function hData(c,d){
 function hUi(){
  if(!hmodal||hmodal.style.display==='none')return;
  const url=location.href.split('#')[0].split('?')[0]+'#join='+hcode,on=hstat==='on'||hstat==='conn';
- const txt={off:'Not sharing.',conn:'Connecting to the relay…',on:'Ready – phones can join.',err:'Connection problem. Check the internet connection and try again.',nolib:'The connection library could not be loaded (internet needed).'}[hstat];
+ const txt={off:'Not sharing.',conn:'Connecting to the relay…',on:'Ready – phones can join.',err:RELAY?'Cannot reach the relay script. Check internet connection and the relay URL.':'Connection problem. Check the internet connection and try again.',nolib:'The connection library could not be loaded (internet needed).'}[hstat];
  hmodal.innerHTML=`<div class="mb" style="max-width:30rem"><div class="mh"><h3>📱 Join with phones</h3></div>
  <p class="stn" style="margin:.2rem 0 .4rem">${txt}</p>
  ${on?`<div class="tphcode">${esc(hcode)}</div><div class="tphqr" id="tphqr"></div>
  <p class="stn">Players open this site on their phone, tap <b>📲 Join</b> and type the code – or scan the QR code.</p>
- <p class="stn" style="word-break:break-all;opacity:.7">${esc(url)}</p>`:''}
+ <p class="stn" style="word-break:break-all;opacity:.7">${esc(url)}</p>${RELAY?'<p class="stn" style="opacity:.7">Keep this page open and in the foreground while playing.</p>':'<p class="stn" style="opacity:.7">Tip: keep phones on the same Wi-Fi as this device (not mobile data or a guest network).</p>'}`:''}
  ${location.protocol==='file:'?'<p class="rider-warning">This page is opened from a local file, so phones cannot open it. Host the file online first (e.g. GitHub Pages or Netlify).</p>':''}
- <p class="stn">Phones connected: <b>${hc.size}</b></p>
+ <p class="stn">Phones connected: <b>${RELAY?hCnt:hc.size}</b></p>
  <div style="display:flex;gap:.7rem;justify-content:flex-end;flex-wrap:wrap">${hstat==='off'||hstat==='err'||hstat==='nolib'?'<button onclick="phStart()">Start</button>':'<button class="ghost" onclick="phStop()">Stop sharing</button>'}<button class="go" onclick="phClose()">Close</button></div></div>`;
  const q=$('tphqr');if(q&&typeof QRCode!=='undefined'){try{new QRCode(q,{text:url,width:176,height:176})}catch(e){}}}
 window.phOpen=function(){
@@ -1699,18 +1727,22 @@ window.phStop=hStop;
 setInterval(()=>{if(hp&&hc.size&&S)hPush(false)},500);
 
 /* ---------- PHONE (the player's own device) ---------- */
-let cp=null,cc=null,ccode='',cs=null,cstat='off',cmsg='',cEver=false,cov=null,ct=null,cr=null,pstage=1,pq='',seat=null,seatN='';
+let pTm=null,pCid='',pVer=-1,pFast=0,pBusy=false,cRel=false;
+let cstage='',ctm=null,cp=null,cc=null,ccode='',cs=null,cstat='off',cmsg='',cEver=false,cov=null,ct=null,cr=null,pstage=1,pq='',seat=null,seatN='';
 try{const o=JSON.parse(ls('ti4Seat')||'null');if(o){seat=o[0];seatN=o[1]}}catch(e){}
-function pjDrop(){clearTimeout(cr);try{cc&&cc.close()}catch(e){}try{cp&&cp.destroy()}catch(e){}cp=cc=null;cs=null;cEver=false}
+function pjDrop(){cRel=false;clearTimeout(pTm);pBusy=false;clearTimeout(cr);try{cc&&cc.close()}catch(e){}try{cp&&cp.destroy()}catch(e){}cp=cc=null;cs=null;cEver=false}
 function pjMsg(m,ms){cmsg=m;clearTimeout(ct);if(ms)ct=setTimeout(()=>{cmsg='';pjRender()},ms)}
 function pjConnect(code){
  code=(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
  pjDrop();
  if(code.length<4){cstat='off';pjMsg('Enter the 4-character code.');pjRender();return}
- ccode=code;ls('ti4Join',code);cstat='conn';pjMsg('');pjRender();
+ ccode=code;ls('ti4Join',code);cstat='conn';cstage='Contacting relay server…';pjMsg('');pjRender();
+ clearTimeout(ctm);ctm=setTimeout(()=>{if(cstat==='conn'||(cstat==='on'&&!cs)){const st=cstage;pjDrop();cstat='off';
+  pjMsg('Could not connect ('+st+'). Make sure the phone is on the same Wi-Fi as the host (not mobile data, no guest network), the host has 📱 Phones open, and the code is right. If it still fails, a TURN relay or the Apps Script relay is needed.');pjRender()}},20000);
+ if(RELAY){pCid=pCid||('c'+Math.random().toString(36).slice(2,9));pVer=-1;cRel=true;cstage='Contacting the game…';pjPoll();return}
  if(typeof Peer==='undefined'){cstat='off';pjMsg('Could not load the connection library. Check the internet connection.');pjRender();return}
- const p=new Peer();cp=p;
- p.on('open',()=>pjLink());
+ const p=new Peer(undefined,{config:ICE});cp=p;
+ p.on('open',()=>{cstage='Relay reached, looking for host…';pjRender();pjLink()});
  p.on('disconnected',()=>{try{p.reconnect()}catch(e){}});
  p.on('error',e=>{
   if(e.type==='peer-unavailable'){
@@ -1721,15 +1753,37 @@ function pjConnect(code){
 function pjLink(){
  if(!cp||cp.destroyed)return;
  const c=cp.connect(PF+ccode,{serialization:'json',reliable:true});cc=c;
- c.on('open',()=>{cstat='on';cEver=true;pjMsg('');pjRender()});
+ c.on('open',()=>{cstat='on';cEver=true;cstage='Linked, waiting for game data…';pjMsg('');pjRender()});
+ c.on('iceStateChanged',s=>{cstage='Opening link ('+s+')…';if(s==='failed'&&!cEver){pjDrop();cstat='off';pjMsg('Direct connection failed (blocked by the network). Try the same Wi-Fi as the host, or set up a TURN relay.')}pjRender()});
  c.on('data',d=>{
   if(!d)return;
-  if(d.t==='st'){cs=d;pjRender()}
+  if(d.t==='st'){cs=d;clearTimeout(ctm);pjRender()}
   else if(d.t==='err'){pjMsg(d.m,3500);pjRender()}});
  c.on('close',()=>{if(cc!==c)return;cstat='lost';pjRender();pjRetry()});
  c.on('error',()=>{})}
 function pjRetry(){clearTimeout(cr);cr=setTimeout(()=>{if(cstat==='lost'&&cp&&!cp.destroyed){if(cp.disconnected){try{cp.reconnect()}catch(e){}}pjLink()}},2000)}
-function pjSend(m){if(cstat==='on'&&cc){try{cc.send(m);if(navigator.vibrate)navigator.vibrate(15)}catch(e){}}}
+function pjPoll(){
+ clearTimeout(pTm);if(!cRel||pBusy)return;
+ pBusy=true;
+ rpost({a:'poll',room:ccode,cid:pCid,v:pVer}).then(r=>{
+  if(!cRel)return;
+  if(!r.ok)throw new Error(r.err||'failed');
+  if(!r.room){
+   if(cEver){cstat='lost';pjMsg('Game not found – retrying…')}
+   else{pjDrop();cstat='off';pjMsg('No game found with code '+ccode+'. Check the code and that 📱 Phones is open on the host.');pjRender();return}
+  }else{
+   if(r.state!==undefined){cs=r.state;pVer=r.v;clearTimeout(ctm)}
+   (r.replies||[]).forEach(x=>pjMsg(x.m,3500));
+   if(cs){cEver=true;if(r.host===false){cstat='lost';pjMsg('Host not reachable – waiting…')}else{if(cstat!=='on')pjMsg('');cstat='on'}}
+  }
+  pjRender()
+ }).catch(()=>{if(cRel&&cEver){cstat='lost';pjRender()}})
+ .then(()=>{pBusy=false;if(cRel)pTm=setTimeout(pjPoll,document.hidden?5000:(pFast>Date.now()?700:1800))})}
+function pjSend(m){
+ if(RELAY){if(cstat!=='on')return;
+  rpost({a:'cmd',room:ccode,cid:pCid,d:m}).then(()=>{pFast=Date.now()+8000;clearTimeout(pTm);pTm=setTimeout(pjPoll,400)}).catch(()=>pjMsg('Sending failed – check the connection.',3000)||pjRender());
+  if(navigator.vibrate)navigator.vibrate(15);return}
+ if(cstat==='on'&&cc){try{cc.send(m);if(navigator.vibrate)navigator.vibrate(15)}catch(e){}}}
 function pjRender(){
  if(!cov)return;
  const act=document.activeElement,keep=act&&act.id==='pjq'?[act.selectionStart,act.selectionEnd]:null;
@@ -1739,7 +1793,7 @@ function pjRender(){
  if(cstat==='off'||!ccode){
   h+=`<h3>Enter game code</h3><input type="text" id="pjc" maxlength="4" autocomplete="off" autocapitalize="characters" inputmode="text" placeholder="ABCD" value="${esc(ccode)}"><p></p><button class="go" style="width:100%" data-a="join">Connect</button>`;
  }else if(!cs){
-  h+='<h3>Connecting…</h3>';
+  h+=`<h3>Connecting…</h3><p class="tphem">${esc(cstage)}</p><button data-a="cancel" class="ghost">Cancel</button>`;
  }else if(!cs.ok){
   h+='<h3>Waiting for the host…</h3><p class="tphem">Connected. The objectives will appear here once the game reaches the Action Phase.</p>';
  }else{
@@ -1775,6 +1829,7 @@ window.pjOpen=function(code){
    const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a,k=+b.dataset.k;
    if(a==='join'){const v=$('pjc');pjConnect(v?v.value:'')}
    else if(a==='leave')pjClose();
+   else if(a==='cancel'){clearTimeout(ctm);pjDrop();cstat='off';pjMsg('');pjRender()}
    else if(a==='seat'){seat=+b.dataset.i;seatN=cs.pl[seat].n;ls('ti4Seat',JSON.stringify([seat,seatN]));pjRender()}
    else if(a==='chseat'){seat=null;pjRender()}
    else if(a==='stage'){pstage=+b.dataset.s;pjRender()}
@@ -1788,7 +1843,7 @@ window.pjOpen=function(code){
  }
  document.documentElement.style.zoom=1;
  if(code)pjConnect(code);else{cstat='off';ccode=ls('ti4Join')||'';pjRender()}};
-function pjClose(){pjDrop();cstat='off';if(cov){cov.remove();cov=null}try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}zoomSet(ZM)}
+function pjClose(){clearTimeout(ctm);pjDrop();cstat='off';if(cov){cov.remove();cov=null}try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}zoomSet(ZM)}
 window.pjClose=pjClose;
 
 /* ---------- boot ---------- */
