@@ -402,7 +402,7 @@ button.elgo{background:#c62828;border-color:#ff6b6b;color:#fff;font-weight:700}b
 .tphem{color:var(--m);padding:10px 2px}
 .tphsc{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--p);border:1px solid #3a3566;border-radius:12px;padding:8px 8px 8px 14px;margin-bottom:8px}.tphsc .n{font-weight:700;font-size:18px}.tphsc button.on{background:var(--for);color:#04201c;border-color:var(--for);font-weight:700}
 .tphso{width:100%;font-weight:700;font-size:18px!important;padding:14px!important;margin:4px 0 8px}.tphso b{color:var(--gold);font-size:1.15em}
-.tphtk{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}.tphtk span{padding:3px 10px;border-radius:999px;border:1px solid currentColor;font-size:14px}
+.tphtk{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}.tphtk span{padding:3px 10px;border-radius:999px;border:1px solid currentColor;font-size:14px}.tphtk button{width:auto;margin:0;padding:3px 10px;border-radius:999px;border:1px solid currentColor;background:transparent;font-size:14px}.tphtk button::after{content:' ✕';opacity:.6;font-size:.85em}.tphsor{display:flex;gap:6px;align-items:stretch}.tphsor .tphso{flex:1}.tphsor .tphsx{width:auto;margin:4px 0 8px;padding:14px 18px!important;font-size:18px!important}
 .tphts{width:100%;font-size:16px;padding:12px;margin-bottom:8px}
 .tphpass{width:100%;font-weight:700;font-size:20px!important;padding:16px!important;margin-top:2px}.tphpass.on{background:#8e1414;border-color:#ff5a5a;color:#fff}
 
@@ -1680,7 +1680,7 @@ function hStart(){
    if(hRetry<7){hstat='conn';hUi();setTimeout(hStart,2000)}else{hstat='err';hUi()}
   }else if(e.type!=='peer-unavailable'){hstat='err';hUi()}})}
 function hStop(){relayOn=false;clearTimeout(hTm);hCnt=0;ls('ti4RoomOn',null);try{hp&&hp.destroy()}catch(e){}hp=null;hc.clear();hstat='off';hUi()}
-const BUILD='tech-secret-1';
+const BUILD='tech-secret-2';
 function hData(c,d){
  if(!d||typeof d!=='object')return;
  const er=m=>{try{c.send({t:'err',m})}catch(e){}};
@@ -1707,6 +1707,19 @@ function hData(c,d){
   if(typeof nm!=='string'||!(Object.values(TECH).some(a=>a.includes(nm))||fl.includes(nm)))return;
   if(((S.tech&&S.tech[i])||[]).includes(nm))return er('You already have that technology.');
   window.addTech(i,nm);hPush(true);return}
+ if(d.t==='untech'){
+  const i=d.i,nm=d.n;
+  if(!Number.isInteger(i)||i<0||i>=S.f.length)return;
+  if(typeof nm!=='string'||!((S.tech&&S.tech[i])||[]).includes(nm))return er('That technology is not in your list.');
+  logAction('Phone: technology removed by '+logPlayer(i));
+  window.rmTech(i,nm);hPush(true);return}
+ if(d.t==='unsecret'){
+  const i=d.i;
+  if(!Number.isInteger(i)||i<0||i>=S.f.length)return;
+  const m=S.mp.filter(x=>x.p===i&&x.r==='Secret Objective'&&x.pts>0).pop();
+  if(!m)return er('No secret objective to remove.');
+  pushUndo();logAction('Phone: secret objective removed from '+logPlayer(i));
+  window.delVP(m.id);hPush(true);return}
  if(d.t==='secret'){
   const i=d.i;
   if(!Number.isInteger(i)||i<0||i>=S.f.length)return;
@@ -1840,8 +1853,8 @@ function pjRender(){
    let topt='<option value="">＋ Add technology…</option>';
    ['green','blue','yellow','red'].forEach(c=>{topt+=tog(c[0].toUpperCase()+c.slice(1),TECH[c])});
    topt+=tog('Faction technology',me.ft||[]);
-   h+=`<h3>Secret objective</h3><button class="tphso" data-a="secret"${dis}>${Date.now()<secArm?'Tap again to confirm +1 VP':'🎯 Secret objective played · <b>'+(me.so||0)+'</b> so far'}</button>`;
-   h+='<h3>Technology</h3>'+(tkHave.length?'<div class="tphtk">'+tkHave.slice().sort((a,b)=>TECH_ORD.indexOf(techCol(a))-TECH_ORD.indexOf(techCol(b))).map(t=>`<span style="color:${TECH_COL[techCol(t)]}">${esc(t)}</span>`).join('')+'</div>':'')+`<select id="pjt" class="tphts"${dis}>${topt}</select>`;
+   h+=`<h3>Secret objective</h3><div class="tphsor"><button class="tphso" data-a="secret"${dis}>${Date.now()<secArm?'Tap again to confirm +1 VP':'🎯 Secret objective played · <b>'+(me.so||0)+'</b> so far'}</button>${(me.so||0)>0?`<button class="tphsx" data-a="unsecret" title="Remove the last secret objective"${dis}>−1</button>`:''}</div>`;
+   h+='<h3>Technology</h3>'+(tkHave.length?'<div class="tphtk">'+tkHave.slice().sort((a,b)=>TECH_ORD.indexOf(techCol(a))-TECH_ORD.indexOf(techCol(b))).map(t=>`<button data-a="untech" data-n="${esc(t)}" title="Tap to remove" style="color:${TECH_COL[techCol(t)]}"${dis}>${esc(t)}</button>`).join('')+'</div><p class="tphem" style="margin:0 0 8px">Added by mistake? Tap a technology to remove it.</p>':'')+`<select id="pjt" class="tphts"${dis}>${topt}</select>`;
    const used=new Set(cs.ob.map(o=>o[0])),ql=pq.trim().toLowerCase();
    const L=PO.map((q,k)=>[q,k]).filter(([q,k])=>q[1]===pstage&&!used.has(k)&&(!ql||(q[0]+' '+q[2]).toLowerCase().includes(ql)));
    h+=`<h3>Add an objective</h3><div class="tphseg"><button data-a="stage" data-s="1" class="${pstage===1?'on':''}">Stage I</button><button data-a="stage" data-s="2" class="${pstage===2?'on':''}">Stage II</button></div><input type="text" id="pjq" class="tphq" style="text-transform:none;letter-spacing:0;font-size:16px;text-align:left" placeholder="Search…" value="${esc(pq)}">`;
@@ -1868,6 +1881,8 @@ window.pjOpen=function(code){
    else if(a==='pass'){const mc=cs.sc[seat]||[],passed=mc.some(c=>cs.cs[c]===2),open=mc.some(c=>!cs.cs[c]);
     if(passed||!open||confirm('You still have unplayed strategy cards. Pass anyway?'))pjSend({t:'pass',i:seat})}
    else if(a==='secret'){if(Date.now()<secArm){secArm=0;pjSend({t:'secret',i:seat});pjRender()}else{secArm=Date.now()+4000;pjRender();setTimeout(pjRender,4100)}}
+   else if(a==='untech'){const n=b.dataset.n;if(n&&confirm('Remove “'+n+'” from your technologies?'))pjSend({t:'untech',i:seat,n})}
+   else if(a==='unsecret'){if(confirm('Remove your last secret objective (−1 VP)?'))pjSend({t:'unsecret',i:seat})}
    else if(a==='add'){if(PO[k]&&confirm('Add “'+PO[k][0]+'” to the board?'))pjSend({t:'add',k})}});
   cov.addEventListener('change',e=>{if(e.target.id!=='pjt')return;const v=e.target.value;e.target.value='';if(v)pjSend({t:'tech',i:seat,n:v})});
   cov.addEventListener('input',e=>{if(e.target.id==='pjq'){pq=e.target.value;pjRender()}});
