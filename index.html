@@ -410,6 +410,10 @@ button.elgo{background:#c62828;border-color:#ff6b6b;color:#fff;font-weight:700}b
 .tphnotes{position:fixed;top:1rem;left:50%;transform:translateX(-50%);z-index:99998;display:flex;flex-direction:column;gap:.5rem;align-items:center;pointer-events:none}
 .tphn{background:#17142f;border:.15rem solid var(--gold);border-radius:1rem;padding:.6rem 1.3rem;font-size:1.5rem;font-weight:700;color:var(--t);box-shadow:0 0 2rem #000c}
 .tphn i{font-style:normal;padding:.1rem .7rem;border-radius:999px;background:var(--fc);color:var(--ik)}
+
+.tphfeed{position:fixed;left:1rem;bottom:1rem;z-index:90;background:#17142fe6;border:.12rem solid var(--gold);border-radius:.9rem;padding:.6rem .9rem;font-size:1rem;max-width:22rem;display:none}
+.tphfeed b{display:block;color:var(--gold);margin-bottom:.3rem;font-size:.9rem;letter-spacing:.05em}.tphfeed div{margin:.2rem 0}.tphfeed span{color:var(--m);font-size:.85rem}
+.tphfeed i{font-style:normal;padding:.05rem .5rem;border-radius:999px;background:var(--fc);color:var(--ik);font-weight:700}
 </style>
 </head><body><main>
 <div class="top"><div class="brand" id="brand">TWILIGHT IMPERIUM · AGENDA PHASE</div><div class="fi-clock" id="fiClock" aria-label="Finnish local time"><time id="fiClockTime">--:--:--</time></div><button class="ghost xlb" id="xlsb" onclick="copyExcel()" title="Copy game for Excel" hidden>XLS</button><div class="dots" id="dots"></div><div class="tip-ticker" id="tipTicker" hidden aria-label="Twilight Imperium strategy tips"><span class="tip-label">STRATEGY TIP</span><div class="tip-window"><div class="tip-track" id="tipTrack"></div></div></div><span class="apk" id="apk" hidden></span><button class="phb" id="phb" onclick="phClick()" hidden></button><div class="tools" id="tools"><div class="tbtns"><button class="ghost" id="rndb" onclick="rndOpen()" title="Pick a random faction">🎲 Randomizer</button><button class="elimb" id="elimb" onclick="elimOpen()" title="Eliminate a player from the game" hidden>✕ Eliminate player</button><button class="ghost undob" id="undob" onclick="undo()" title="Undo the last action" disabled>↶ Undo</button><button class="ghost logb" id="logb" onclick="openLog()" title="View action log">View Log</button><button class="ghost logb" id="lbb" onclick="lbOpen()" title="Series leaderboard from Google Sheets">🏆 Leaderboard</button><button class="ghost logb" id="tphb" onclick="phOpen()" title="Let players add objectives from their phones">📱 Phones</button><button class="ghost logb" id="tpjb" onclick="pjOpen()" title="Join a game from this phone with a code">📲 Join</button><button class="ghost undob" id="fontb" onclick="cycleFont()" title="Change font">Aa</button><span class="zm"><button class="ghost" title="Zoom out 5%" onclick="zoomBy(-5)">−</button><button class="ghost" id="zoomv" title="Reset zoom to 70%" onclick="zoomSet(70)">100%</button><button class="ghost" title="Zoom in 5%" onclick="zoomBy(5)">＋</button></span><button class="ghost" onclick="helpOpen()">Help</button></div><button class="ghost tlt" id="tlt" title="Tools" aria-label="Show tools" onclick="this.parentNode.classList.toggle('open')"><i>‹</i></button></div></div>
@@ -1683,12 +1687,22 @@ function hStart(){
    if(hRetry<7){hstat='conn';hUi();setTimeout(hStart,2000)}else{hstat='err';hUi()}
   }else if(e.type!=='peer-unavailable'){hstat='err';hUi()}})}
 function hStop(){relayOn=false;clearTimeout(hTm);hCnt=0;ls('ti4RoomOn',null);try{hp&&hp.destroy()}catch(e){}hp=null;hc.clear();hstat='off';hUi()}
+const BUILD='whisper-2';
+const hFeed=[];
+function hFeedUi(){
+ let el=$('tphfeed');
+ if(!el){el=document.createElement('div');el.id='tphfeed';el.className='tphfeed';document.body.appendChild(el)}
+ const show=hFeed.length&&S&&S.view==='action';
+ el.style.display=show?'block':'none';
+ if(show)el.innerHTML='<b>🤫 Whispers</b>'+hFeed.slice(-6).reverse().map(x=>`<div><span>${x.t}</span> <i style="--fc:${esc(x.fc)};--ik:${inkOn(x.fc)}">${esc(x.fn)}</i> → <i style="--fc:${esc(x.tc)};--ik:${inkOn(x.tc)}">${esc(x.tn)}</i></div>`).join('')}
+setInterval(()=>{try{hFeedUi()}catch(e){}},1000);
 function hNote(f,t){
+ hFeed.push({t:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),fn:F[S.f[f]][1],fc:pcol(f),tn:F[S.f[t]][1],tc:pcol(t)});hFeedUi();
  logAction('Whisper',logPlayer(f)+' → '+logPlayer(t));
  let box=$('tphnotes');if(!box){box=document.createElement('div');box.id='tphnotes';box.className='tphnotes';document.body.appendChild(box)}
  const el=document.createElement('div'),chip=i=>`<i style="--fc:${esc(pcol(i))};--ik:${inkOn(pcol(i))}">${esc(F[S.f[i]][1])}</i>`;
  el.className='tphn';el.innerHTML=`🤫 ${chip(f)} whispered to ${chip(t)}`;
- box.appendChild(el);setTimeout(()=>el.remove(),9000)}
+ box.appendChild(el);setTimeout(()=>el.remove(),12000)}
 function hData(c,d){
  if(!d||typeof d!=='object')return;
  const er=m=>{try{c.send({t:'err',m})}catch(e){}};
@@ -1738,7 +1752,7 @@ function hUi(){
  <p class="stn">Players open this site on their phone, tap <b>📲 Join</b> and type the code – or scan the QR code.</p>
  <p class="stn" style="word-break:break-all;opacity:.7">${esc(url)}</p>${RELAY?'<p class="stn" style="opacity:.7">Keep this page open and in the foreground while playing.</p>':'<p class="stn" style="opacity:.7">Tip: keep phones on the same Wi-Fi as this device (not mobile data or a guest network).</p>'}`:''}
  ${location.protocol==='file:'?'<p class="rider-warning">This page is opened from a local file, so phones cannot open it. Host the file online first (e.g. GitHub Pages or Netlify).</p>':''}
- <p class="stn">Phones connected: <b>${RELAY?hCnt:hc.size}</b></p>
+ <p class="stn">Phones connected: <b>${RELAY?hCnt:hc.size}</b> <span style="opacity:.5;font-size:.8em">· build ${BUILD}</span></p>
  <div style="display:flex;gap:.7rem;justify-content:flex-end;flex-wrap:wrap">${hstat==='off'||hstat==='err'||hstat==='nolib'?'<button onclick="phStart()">Start</button>':'<button class="ghost" onclick="phStop()">Stop sharing</button>'}<button class="go" onclick="phClose()">Close</button></div></div>`;
  const q=$('tphqr');if(q&&typeof QRCode!=='undefined'){try{new QRCode(q,{text:url,width:176,height:176})}catch(e){}}}
 window.phOpen=function(){
