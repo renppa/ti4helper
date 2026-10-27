@@ -809,7 +809,8 @@ function statusBox(){const has=n=>S.f.map((x,i)=>i).filter(i=>((S.tech&&S.tech[i
  const endW=sol>=0?`<div class="stws"><div class="stw" style="--fc:${pcol(sol)}"><b>End of the status phase – ${esc(F[S.f[sol]][1])}</b> – If your flagship is on the board: place 1 infantry from your reinforcements in this system’s space area.</div></div>`:'';
  return `<div class="stbx"><h3>Status Phase</h3>${start?`<div class="stws">${start}</div>`:''}<div class="sts">${ST_STEPS.map(([t,L],k)=>`<div class="stp"><h4>${k+1}. ${t}</h4><ul>${L.map(x=>`<li>${x}</li>`).join('')}</ul>${extra[k]||''}</div>`).join('')}</div>${endW}</div>`}
 let ABT=null;
-function absStart(){if(S.abd)return;S.abd=true;S.pv=null;S.piUsed={};S.agr=0;S.ags=0;go();absOpen();if(S.pvMax)S.pv=S.pvMax.slice();pvOpen('start')}
+var ABSPEND=false;
+function absStart(){if(S.abd)return;S.abd=true;S.pv=null;S.piUsed={};S.agr=0;S.ags=0;go();ABSPEND=true;if(S.pvMax)S.pv=S.pvMax.slice();pvOpen('start')}
 function absClose(){clearInterval(ABT);ABT=null;const m=$('abm');if(m)m.style.display='none'}
 function absOpen(){absClose();let m=$('abm');if(!m){m=document.createElement('div');m.id='abm';m.className='mo';document.body.appendChild(m)}let n=5;
  const draw=()=>{m.innerHTML=`<div class="mb abx"><div class="mh"><h3>Start of the Agenda Phase</h3><button onclick="absClose()">✕ Close</button></div><div class="abn">Ancient Burial Sites</div><p class="stn">Does anyone want to play it now?</p><div class="abt">${n}</div></div>`};draw();m.style.display='flex';
@@ -1598,7 +1599,7 @@ function pvOpen(kind){let m=$('pvm');if(!m){m=document.createElement('div');m.id
 function pvStep(i,d){const e=document.querySelector('#pvm .pvin[data-i="'+i+'"]');if(e)e.value=Math.max(0,(parseInt(e.value,10)||0)+d)}
 function pvBtn(){return S.abd?`<div style="margin:.2rem 0 1rem"><button class="ghost" onclick="pvOpen(S.pv?'edit':'start')">✎ Edit planet influence (${S.pv?'max / left':'not set'})</button></div>`:''}
 function pvReset(){(S.pvMax||[]).forEach((n,i)=>{const e=document.querySelector('#pvm .pvin[data-i="'+i+'"]');if(e&&n!=null)e.value=n})}
-function pvClose(){const m=$('pvm');if(m)m.style.display='none'}
+function pvClose(){const m=$('pvm');if(m)m.style.display='none';if(ABSPEND){ABSPEND=false;absOpen()}}
 function pvSave(){const st=S.pvKind==='start',a=S.f.map(()=>null);document.querySelectorAll('#pvm .pvin').forEach(x=>{const n=x.value.trim();a[+x.dataset.i]=n===''?0:Math.max(0,parseInt(n,10)||0)});S.pv=a;if(st)S.pvMax=a.slice();if(Array.isArray(S.v))S.v.forEach((v,i)=>{if(a[i]!=null&&v.votes>a[i])v.votes=a[i]});pvClose();if(S.view==='agenda'&&S.step===4&&Array.isArray(S.v)&&$('vb')){rv()}}
 function helpOpen(){let m=$('hlm');if(!m){m=document.createElement('div');m.id='hlm';m.className='mo';m.style.zIndex=100;m.onclick=e=>{if(e.target===m)helpClose()};document.body.appendChild(m)}
  m.innerHTML=`<div class="mb" style="max-width:36rem"><div class="mh"><h3>Help</h3><button onclick="helpClose()">✕ Close</button></div><ul class="hlp">
