@@ -410,6 +410,30 @@ button.elgo{background:#c62828;border-color:#ff6b6b;color:#fff;font-weight:700}b
 
 
 </style>
+<style>
+/* phone / touch: tools as a floating button + tap-to-open panel */
+@media (max-width:900px),(pointer:coarse){
+.tools{position:fixed;right:.7rem;bottom:.7rem;z-index:55;display:block}
+.tools .tlt{width:4rem!important;height:4rem!important;min-width:4rem!important;border-radius:50%!important;background:var(--p2);border:.14rem solid var(--gold);box-shadow:0 .3rem 1.2rem #000a;color:var(--gold)}
+.tools .tlt i{font-size:2.2rem;transform:rotate(90deg)}
+.tools.open .tlt i,.tools:hover .tlt i{transform:rotate(-90deg)}
+.tools .tbtns{display:grid!important;grid-template-columns:1fr 1fr;gap:.5rem;position:fixed;left:.7rem;right:.7rem;bottom:5.6rem;max-width:none!important;max-height:calc(80vh / var(--zm,1));overflow:auto;white-space:normal;padding:.7rem;border-radius:1.2rem;background:var(--p);border:.14rem solid var(--gold);box-shadow:0 .5rem 2rem #000c;transition:none!important}
+.tools:not(.open) .tbtns{display:none!important}
+.tools .tbtns button,.tools .tbtns .zm button{height:3.6rem!important;font-size:1.05rem!important;white-space:normal;line-height:1.1}
+.tools .tbtns .zm{grid-column:1/-1;display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:.5rem}
+.tools .tbtns [hidden]{display:none!important}
+main{padding-bottom:6rem}
+}
+</style>
+<style>
+/* centre button labels inside their boxes */
+.tile{display:flex;align-items:center;justify-content:center;text-align:center;min-height:3.6rem}
+.tvc{align-items:center}
+.tvc button,.tph button,.eo,.stsb,.gb,.phb,.pob,.scb,.cpb,.act button,.mgt button,.rndc{display:inline-flex;align-items:center;justify-content:center;text-align:center;line-height:1.2}
+.tvc button,.stsb{min-height:2.3rem}
+.pch{display:inline-flex;align-items:center;justify-content:center;text-align:center}
+button[hidden],[hidden]{display:none!important}
+</style>
 </head><body><main>
 <div class="top"><div class="brand" id="brand">TWILIGHT IMPERIUM · AGENDA PHASE</div><div class="fi-clock" id="fiClock" aria-label="Finnish local time"><time id="fiClockTime">--:--:--</time></div><button class="ghost xlb" id="xlsb" onclick="copyExcel()" title="Copy game for Excel" hidden>XLS</button><div class="dots" id="dots"></div><div class="tip-ticker" id="tipTicker" hidden aria-label="Twilight Imperium strategy tips"><span class="tip-label">STRATEGY TIP</span><div class="tip-window"><div class="tip-track" id="tipTrack"></div></div></div><span class="apk" id="apk" hidden></span><button class="phb" id="phb" onclick="phClick()" hidden></button><div class="tools" id="tools"><div class="tbtns"><button class="ghost" id="rndb" onclick="rndOpen()" title="Pick a random faction">🎲 Randomizer</button><button class="elimb" id="elimb" onclick="elimOpen()" title="Eliminate a player from the game" hidden>✕ Eliminate player</button><button class="ghost undob" id="undob" onclick="undo()" title="Undo the last action" disabled>↶ Undo</button><button class="ghost logb" id="logb" onclick="openLog()" title="View action log">View Log</button><button class="ghost logb" id="lbb" onclick="lbOpen()" title="Series leaderboard from Google Sheets">🏆 Leaderboard</button><button class="ghost logb" id="tphb" onclick="phOpen()" title="Let players add objectives from their phones">📱 Phones</button><button class="ghost logb" id="tpjb" onclick="pjOpen()" title="Join a game from this phone with a code">📲 Join</button><button class="ghost undob" id="fontb" onclick="cycleFont()" title="Change font">Aa</button><button class="ghost logb" id="thb" onclick="thCycle('bg')" title="Change background">🎨 Background</button><button class="ghost logb" id="thx" onclick="thCycle('bx')" title="Change box colour">🎨 Boxes</button><span class="zm"><button class="ghost" title="Zoom out 5%" onclick="zoomBy(-5)">−</button><button class="ghost" id="zoomv" title="Reset zoom to 70%" onclick="zoomSet(70)">100%</button><button class="ghost" title="Zoom in 5%" onclick="zoomBy(5)">＋</button></span><button class="ghost" onclick="helpOpen()">Help</button></div><button class="ghost tlt" id="tlt" title="Tools" aria-label="Show tools" onclick="this.parentNode.classList.toggle('open')"><i>‹</i></button></div></div>
 <div id="app"></div><div class="logmodal" id="logmodal" onclick="if(event.target===this)closeLog()"><div class="logbox"><div class="loghead"><h3>Action Log</h3><button class="ghost logb" onclick="closeLog()">Close</button></div><div id="logentries"></div></div></div><div class="foot"><button class="ghost" onclick="if(confirm('Start over?'))reset()">New Game</button></div></main>
@@ -1949,4 +1973,11 @@ const m=/[#&?]join=([A-Za-z0-9]{4})/.exec(location.hash||'');
 if(m){window.pjOpen(m[1])}
 else if(ls('ti4RoomOn')==='1'){setTimeout(hStart,600)}
 })();
-</script></body></html>
+</script><script>
+document.addEventListener('click',function(e){var t=document.getElementById('tools');if(!t||!t.classList.contains('open'))return;
+if(!window.matchMedia('(max-width:900px),(pointer:coarse)').matches)return;
+if(!t.contains(e.target)){t.classList.remove('open');return}
+var b=e.target.closest&&e.target.closest('.tbtns button');
+if(b&&!b.closest('.zm')&&['thb','thx','fontb','undob'].indexOf(b.id)<0)t.classList.remove('open')});
+</script>
+</body></html>
