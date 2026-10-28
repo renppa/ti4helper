@@ -1869,9 +1869,11 @@ function hData(c,d){
  if(d.t==='secret'){
   const i=d.i;
   if(!Number.isInteger(i)||i<0||i>=S.f.length)return;
-  pushUndo();S.mp.push({id:++S.mid,p:i,pts:1,r:'Secret Objective',note:'Added from phone'});
-  snap(i,1,'Secret Objective – added from phone');
-  logAction('Phone: secret objective played by '+logPlayer(i));
+  const sn=typeof d.n==='string'?d.n:null;
+  if(sn!==null){if(!SECRET_OBJECTIVES.includes(sn))return er('Unknown secret objective.');if(soScored().by[sn])return er('“'+sn+'” has already been scored.')}
+  pushUndo();S.mp.push({id:++S.mid,p:i,pts:1,r:'Secret Objective',note:sn||'Added from phone'});
+  snap(i,1,'Secret Objective – '+(sn||'added from phone'));
+  logAction('Phone: '+(sn?'“'+sn+'” scored by ':'secret objective played by ')+logPlayer(i));
   try{if($('vpm'))vpLog()}catch(e){}
   renderAction();hPush(true);return}
  const k=d.k,i=d.i;
@@ -1972,6 +1974,11 @@ function pjView(){
   sec=(t,a)=>`<h3>${t} · ${a.length}</h3>`+(a.map(x=>`<div class="tpspo"><b>${esc(x.o[0])}</b><small>${esc(x.o[2])}</small></div>`).join('')||'<div class="tphem">All revealed.</div>');
   return back+'<h3>Public objectives not yet revealed</h3><p class="tphem">None of these are on the board yet – any of them could still come up.</p>'+sec('Stage I',g(1))+sec('Stage II',g(2))}
  const by={};(cs.sx||[]).forEach(([i,ps])=>{if(SECRET_OBJECTIVES[i])by[SECRET_OBJECTIVES[i]]=ps});
+ if(pview==='pick'){const lf=SECRET_OBJECTIVES.filter(n=>!by[n]),sh=lf.filter(n=>pSOF==='all'||SO_INFO[n][0]===pSOF),
+  ch=(k,l)=>`<button class="tpsc${pSOF===k?' on':''}" data-a="sof" data-f="${k}">${l} ${k==='all'?lf.length:lf.filter(n=>SO_INFO[n][0]===k).length}</button>`;
+  return back+'<h3>Which secret objective did you score?</h3><p class="tphem">Objectives that have already been scored are not listed.</p><div class="tpsch">'+ch('all','All')+ch('A','Action')+ch('S','Status')+ch('G','Agenda')+'</div>'
+   +(sh.map(n=>`<button class="tpsr" data-a="score2" data-i="${SECRET_OBJECTIVES.indexOf(n)}"><span class="tpst"><b>${esc(n)}</b><em class="t${SO_INFO[n][0]}">${SO_PH[SO_INFO[n][0]]}</em></span><small>${esc(SO_INFO[n][1])}</small></button>`).join('')||'<div class="tphem">Nothing here.</div>')
+   +'<button class="ghost" data-a="scoreother" style="width:100%;margin-top:6px">Not in the list – score without choosing</button>'}
  const left=SECRET_OBJECTIVES.filter(n=>!by[n]),shown=left.filter(n=>pSOF==='all'||SO_INFO[n][0]===pSOF),scored=SECRET_OBJECTIVES.filter(n=>by[n]),blank=cs.sb||0;
  const chip=(k,l)=>`<button class="tpsc${pSOF===k?' on':''}" data-a="sof" data-f="${k}">${l} ${k==='all'?left.length:left.filter(n=>SO_INFO[n][0]===k).length}</button>`;
  return back+`<h3>Unscored secret objectives</h3><p class="tphem"><b>${left.length}</b> of ${SECRET_OBJECTIVES.length} haven’t been scored by anyone yet – use them to work out what the others might be holding.${blank?` <span style="color:var(--gold)">${blank} scoring${blank>1?'s were':' was'} added without a name, so ${blank>1?'those':'that one'} can’t be taken off the list.</span>`:''}</p>
@@ -2013,7 +2020,7 @@ function pjRender(){
    let topt='<option value="">＋ Add technology…</option>';
    ['green','blue','yellow','red'].forEach(c=>{topt+=tog(c[0].toUpperCase()+c.slice(1),TECH[c])});
    topt+=tog('Faction technology',me.ft||[]);
-   h+=`<h3>Secret objective</h3><div class="tphsor"><button class="tphso" data-a="secret"${dis}>${Date.now()<secArm?'Tap again to confirm +1 VP':'🎯 Secret objective played · <b>'+(me.so||0)+'</b> so far'}</button>${(me.so||0)>0?`<button class="tphsx" data-a="unsecret" title="Remove the last secret objective"${dis}>−1</button>`:''}</div>`;
+   h+=`<h3>Secret objective</h3><div class="tphsor"><button class="tphso" data-a="pick"${dis}>🎯 Score a secret objective · <b>${me.so||0}</b> so far</button>${(me.so||0)>0?`<button class="tphsx" data-a="unsecret" title="Remove the last secret objective"${dis}>−1</button>`:''}</div>`;
    h+='<div class="tpschk"><button data-a="view" data-v="secrets">🕵️ Unscored secrets</button><button data-a="view" data-v="upcoming">🎯 Upcoming public</button></div>';
    h+='<h3>Technology</h3>'+(tkHave.length?'<div class="tphtk">'+tkHave.slice().sort((a,b)=>TECH_ORD.indexOf(techCol(a))-TECH_ORD.indexOf(techCol(b))).map(t=>`<button data-a="untech" data-n="${esc(t)}" title="Tap to remove" style="color:${TECH_COL[techCol(t)]}"${dis}>${esc(t)}</button>`).join('')+'</div><p class="tphem" style="margin:0 0 8px">Added by mistake? Tap a technology to remove it.</p>':'')+`<select id="pjt" class="tphts"${dis}>${topt}</select>`;
 
@@ -2043,7 +2050,9 @@ window.pjOpen=function(code){
    else if(a==='card')pjSend({t:'card',c:+b.dataset.c,i:seat});
    else if(a==='pass'){const mc=cs.sc[seat]||[],passed=mc.some(c=>cs.cs[c]===2),open=mc.some(c=>!cs.cs[c]);
     if(passed||!open||confirm('You still have unplayed strategy cards. Pass anyway?'))pjSend({t:'pass',i:seat})}
-   else if(a==='secret'){if(Date.now()<secArm){secArm=0;pjSend({t:'secret',i:seat});pjRender()}else{secArm=Date.now()+4000;pjRender();setTimeout(pjRender,4100)}}
+   else if(a==='pick'){pview='pick';cov.scrollTop=0;pjRender()}
+   else if(a==='score2'){const n=SECRET_OBJECTIVES[+b.dataset.i];if(n&&confirm('Score “'+n+'” (+1 VP)?')){pjSend({t:'secret',i:seat,n});pview=null;cov.scrollTop=0;pjRender()}}
+   else if(a==='scoreother'){if(confirm('Score a secret objective without choosing which one (+1 VP)?')){pjSend({t:'secret',i:seat});pview=null;cov.scrollTop=0;pjRender()}}
    else if(a==='untech'){const n=b.dataset.n;if(n&&confirm('Remove “'+n+'” from your technologies?'))pjSend({t:'untech',i:seat,n})}
    else if(a==='unsecret'){if(confirm('Remove your last secret objective (−1 VP)?'))pjSend({t:'unsecret',i:seat})}
 });
