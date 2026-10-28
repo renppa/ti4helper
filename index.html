@@ -269,13 +269,6 @@ button.elgo{background:#c62828;border-color:#ff6b6b;color:#fff;font-weight:700}b
 .oc .ocs .pch{text-transform:uppercase}
 .xlb{font-size:.62rem!important;padding:.15rem .4rem!important;min-width:0!important;opacity:.45;letter-spacing:.05em}.xlb:hover{opacity:1}
 .pnm{font-style:normal;font-weight:600;font-size:.88em;opacity:.95;margin-left:.6em;letter-spacing:.02em;color:var(--gold,#e9c46a)}
-.tools{display:flex;align-items:center;gap:.4rem}
-.tools .tbtns{display:flex;align-items:center;gap:.5rem;max-width:0;opacity:0;overflow:hidden;white-space:nowrap;pointer-events:none;transition:max-width .25s ease .6s,opacity .2s ease .6s}
-.tools:hover .tbtns,.tools.open .tbtns{max-width:70rem;opacity:1;pointer-events:auto;transition-delay:0s}
-.tlt{display:inline-flex;align-items:center;gap:.45rem;font-size:.85rem!important;font-weight:700;letter-spacing:.06em;line-height:1;padding:.4rem .75rem!important;border-radius:.7rem!important;color:var(--gold)!important;border:.12rem solid var(--gold)!important;background:rgba(233,196,106,.1)!important;opacity:.9;transition:background .2s,opacity .2s}
-.tlt i{font-style:normal;font-size:1.35rem;line-height:.8;transition:transform .25s}
-.tlt:hover{background:rgba(233,196,106,.25)!important;opacity:1}
-.tools:hover .tlt i,.tools.open .tlt i{transform:rotate(180deg)}
 
 .lbm{background:radial-gradient(ellipse at 50% -10%,#2a2160 0%,#0a0818 55%,#05030f 100%)}
 .lbw{max-width:62rem;margin:0 auto;padding-bottom:2rem}
@@ -341,7 +334,6 @@ button.elgo{background:#c62828;border-color:#ff6b6b;color:#fff;font-weight:700}b
 @media (prefers-reduced-motion:reduce){.sbr em.nup,.sbr em.ndn{animation:none}}
 .scl .scx{text-decoration:line-through;text-decoration-thickness:.12rem;opacity:.55}
 .sbn .scl b.pass{color:#ff4040;font-weight:800;letter-spacing:.05em;font-size:.72rem!important;margin-left:.2rem;display:inline}
-.zm{display:inline-flex;gap:.2rem}.zm button{min-width:2.2rem}
 .vav{font-size:.8rem;opacity:.85;margin:.2rem 0 .4rem}.vav b{color:var(--gold)}
 .vbk{font-size:.8rem;margin:.3rem 0}.vbk .pibx{color:#ffd84a}.vbk .arbx{color:#ffb86b}.vbk .vwarn{color:#ff7b7b;margin-top:.2rem}
 .pib{display:flex;flex-direction:column;align-items:center;width:100%;margin:.3rem 0;padding:.35rem .6rem;border-radius:.8rem;border:.12rem solid #ffd84a;background:transparent;color:#ffd84a;font:inherit;font-weight:700;cursor:pointer}
@@ -351,9 +343,6 @@ button.elgo{background:#c62828;border-color:#ff6b6b;color:#fff;font-weight:700}b
 .esb{font-size:.9rem!important;padding:.2rem .7rem!important;color:var(--gold)!important;border-color:var(--gold)!important}.esb.on{color:#ff9a4d!important;border-color:#ff9a4d!important}.pvmx{opacity:.65;font-size:.8rem;white-space:nowrap}
 .sv{flex-wrap:wrap}.sv .pib{width:auto;margin:.1rem 0 0 auto;padding:.25rem .7rem;flex:0 0 auto;font-size:.8rem;line-height:1.15}.sv .pib small{font-size:.7rem}
 .hlp{margin:.4rem 0 0;padding-left:1.2rem;display:grid;gap:.55rem;font-size:.95rem;line-height:1.4}.hlp b{color:var(--gold)}
-.tools .tbtns button,.tools .tbtns .zm button{height:2.3rem;min-width:2.3rem;padding:0 .8rem!important;font-size:.85rem!important;font-weight:600;border-radius:.7rem!important;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box}
-.tools .tbtns .zm button{padding:0 .5rem!important}
-.tools .tlt{height:2.3rem;width:2.3rem;min-width:2.3rem;padding:0!important;justify-content:center;gap:0}.tools .tlt i{font-size:1.5rem}
 .foc{display:grid;grid-template-columns:repeat(auto-fill,minmax(14rem,1fr));gap:.5rem}.foo{display:flex!important;flex-direction:column;align-items:flex-start;text-align:left;padding:.5rem .7rem!important;gap:.15rem}.foo small{opacity:.7;font-weight:400;font-size:.72rem;line-height:1.25}.foo.on{background:var(--gold)!important;color:#201400!important;border-color:var(--gold)!important}.foo.on small{opacity:.85}.foo:disabled{opacity:.35}
 #tipTicker,.tip-ticker{display:none!important}
 .sbr.pas{position:relative;background:linear-gradient(90deg,#8e1414,#c42020)!important;border-color:#ff5a5a!important;box-shadow:0 0 1.2rem -.2rem #ff3030}
@@ -411,21 +400,6 @@ button.elgo{background:#c62828;border-color:#ff6b6b;color:#fff;font-weight:700}b
 
 </style>
 <style>
-/* phone / touch: tools as a floating button + tap-to-open panel */
-@media (max-width:900px),(pointer:coarse){
-.tools{position:fixed;right:.7rem;top:.7rem;z-index:55;display:block}
-.tools .tlt{width:4rem!important;height:4rem!important;min-width:4rem!important;border-radius:50%!important;background:var(--p2);border:.14rem solid var(--gold);box-shadow:0 .3rem 1.2rem #000a;color:var(--gold)}
-.tools .tlt i{font-size:2.2rem;transform:rotate(90deg)}
-.tools.open .tlt i,.tools:hover .tlt i{transform:rotate(-90deg)}
-.tools .tbtns{display:grid!important;grid-template-columns:1fr 1fr;gap:.5rem;position:fixed;left:.7rem;right:.7rem;top:5.2rem;bottom:auto;max-width:none!important;max-height:calc(80vh / var(--zm,1));overflow:auto;white-space:normal;padding:.7rem;border-radius:1.2rem;background:var(--p);border:.14rem solid var(--gold);box-shadow:0 .5rem 2rem #000c;transition:none!important}
-.tools:not(.open) .tbtns{display:none!important}
-.tools .tbtns button,.tools .tbtns .zm button{height:3.6rem!important;font-size:1.05rem!important;white-space:normal;line-height:1.1}
-.tools .tbtns .zm{grid-column:1/-1;display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:.5rem}
-.tools .tbtns [hidden]{display:none!important}
-main{padding-bottom:2rem}.top{padding-right:4.8rem}
-}
-</style>
-<style>
 /* centre button labels inside their boxes */
 .tile{display:flex;align-items:center;justify-content:center;text-align:center;min-height:3.6rem}
 .tvc{align-items:center}
@@ -443,8 +417,38 @@ button[hidden],[hidden]{display:none!important}
 .tch b,.ocn{overflow-wrap:anywhere}
 @media(max-width:1500px){.sbn small{font-size:.74rem!important}.sbn b{font-size:.98rem!important}}
 </style>
+<style>
+/* ===== Tools menu: icon launcher, no boxes around text ===== */
+.tools{position:relative;display:flex;align-items:center}
+.tools .tlt{width:2.5rem;height:2.5rem;min-width:2.5rem;padding:0!important;border-radius:50%!important;display:inline-flex;align-items:center;justify-content:center;border:0!important;background:rgba(255,255,255,.07)!important;color:var(--gold)!important;opacity:.9;box-shadow:none;transition:background .2s}
+.tools .tlt svg{width:1.35rem;height:1.35rem}
+.tools .tlt:hover,.tools.open .tlt{background:rgba(233,196,106,.22)!important;opacity:1}
+.tools .tbtns{display:none;position:absolute;right:0;top:calc(100% + .6rem);z-index:70;width:25rem;grid-template-columns:repeat(4,1fr);gap:.15rem;padding:.7rem;border-radius:1.2rem;background:rgba(14,12,36,.96);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 .6rem 2.4rem #000b;max-height:calc(85vh / var(--zm,1));overflow:auto}
+.tools.open .tbtns{display:grid}
+.tools .tbtns button.tb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.35rem;height:auto;min-width:0;min-height:4.6rem;padding:.6rem .2rem!important;border:0!important;background:transparent!important;box-shadow:none!important;border-radius:.9rem!important;color:var(--t);font-weight:600;white-space:normal;text-align:center;line-height:1.1;transition:background .15s}
+.tools .tbtns button.tb:hover:not(:disabled){background:rgba(255,255,255,.09)!important}
+.tools .tbtns button.tb:disabled{opacity:.3}
+.tools .tbtns .ti{font-size:1.7rem;line-height:1;font-weight:700}
+.tools .tbtns .tl{font-size:.72rem;opacity:.85}
+.tools .tbtns .zm{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:.4rem;margin-top:.4rem;padding-top:.5rem;border-top:.07rem solid rgba(255,255,255,.12)}
+.tools .tbtns .zl{font-size:.72rem;opacity:.7;margin-right:.6rem;font-weight:600}
+.tools .tbtns .zm button{border:0!important;background:transparent!important;box-shadow:none!important;min-width:2.4rem;height:2.4rem;padding:0 .4rem!important;font-size:1.25rem!important;font-weight:700;color:var(--t);border-radius:.7rem!important}
+.tools .tbtns .zm button:hover{background:rgba(255,255,255,.09)!important}
+.tools .tbtns .zm #zoomv{font-size:.95rem!important;min-width:3.6rem}
+.tools .tbtns [hidden]{display:none!important}
+@media (max-width:900px),(pointer:coarse){
+.tools{position:fixed;right:.7rem;top:.7rem;z-index:55}
+.tools .tlt{width:3.4rem!important;height:3.4rem!important;min-width:3.4rem!important;background:var(--p2)!important;box-shadow:0 .3rem 1.2rem #000a}
+.tools .tlt svg{width:1.7rem;height:1.7rem}
+.tools .tbtns{position:fixed;left:.7rem;right:.7rem;top:4.7rem;width:auto;grid-template-columns:repeat(3,1fr)}
+.tools .tbtns button.tb{min-height:5.6rem}
+.tools .tbtns .ti{font-size:2rem}
+.tools .tbtns .tl{font-size:.9rem}
+main{padding-bottom:2rem}.top{padding-right:4.4rem}
+}
+</style>
 </head><body><main>
-<div class="top"><div class="brand" id="brand">TWILIGHT IMPERIUM · AGENDA PHASE</div><div class="fi-clock" id="fiClock" aria-label="Finnish local time"><time id="fiClockTime">--:--:--</time></div><button class="ghost xlb" id="xlsb" onclick="copyExcel()" title="Copy game for Excel" hidden>XLS</button><div class="dots" id="dots"></div><div class="tip-ticker" id="tipTicker" hidden aria-label="Twilight Imperium strategy tips"><span class="tip-label">STRATEGY TIP</span><div class="tip-window"><div class="tip-track" id="tipTrack"></div></div></div><span class="apk" id="apk" hidden></span><button class="phb" id="phb" onclick="phClick()" hidden></button><div class="tools" id="tools"><div class="tbtns"><button class="ghost" id="rndb" onclick="rndOpen()" title="Pick a random faction">🎲 Randomizer</button><button class="elimb" id="elimb" onclick="elimOpen()" title="Eliminate a player from the game" hidden>✕ Eliminate player</button><button class="ghost undob" id="undob" onclick="undo()" title="Undo the last action" disabled>↶ Undo</button><button class="ghost logb" id="logb" onclick="openLog()" title="View action log">View Log</button><button class="ghost logb" id="lbb" onclick="lbOpen()" title="Series leaderboard from Google Sheets">🏆 Leaderboard</button><button class="ghost logb" id="tphb" onclick="phOpen()" title="Let players add objectives from their phones">📱 Phones</button><button class="ghost logb" id="tpjb" onclick="pjOpen()" title="Join a game from this phone with a code">📲 Join</button><button class="ghost undob" id="fontb" onclick="cycleFont()" title="Change font">Aa</button><button class="ghost logb" id="thb" onclick="thCycle('bg')" title="Change background">🎨 Background</button><button class="ghost logb" id="thx" onclick="thCycle('bx')" title="Change box colour">🎨 Boxes</button><span class="zm"><button class="ghost" title="Zoom out 5%" onclick="zoomBy(-5)">−</button><button class="ghost" id="zoomv" title="Reset zoom to 70%" onclick="zoomSet(70)">100%</button><button class="ghost" title="Zoom in 5%" onclick="zoomBy(5)">＋</button></span><button class="ghost" onclick="helpOpen()">Help</button></div><button class="ghost tlt" id="tlt" title="Tools" aria-label="Show tools" onclick="this.parentNode.classList.toggle('open')"><i>‹</i></button></div></div>
+<div class="top"><div class="brand" id="brand">TWILIGHT IMPERIUM · AGENDA PHASE</div><div class="fi-clock" id="fiClock" aria-label="Finnish local time"><time id="fiClockTime">--:--:--</time></div><button class="ghost xlb" id="xlsb" onclick="copyExcel()" title="Copy game for Excel" hidden>XLS</button><div class="dots" id="dots"></div><div class="tip-ticker" id="tipTicker" hidden aria-label="Twilight Imperium strategy tips"><span class="tip-label">STRATEGY TIP</span><div class="tip-window"><div class="tip-track" id="tipTrack"></div></div></div><span class="apk" id="apk" hidden></span><button class="phb" id="phb" onclick="phClick()" hidden></button><div class="tools" id="tools"><div class="tbtns"><button class="ghost tb" id="rndb" onclick="rndOpen()" title="Pick a random faction"><span class="ti">🎲</span><span class="tl">Randomizer</span></button><button class="elimb tb" id="elimb" onclick="elimOpen()" title="Eliminate a player from the game" hidden><span class="ti">✕</span><span class="tl">Eliminate</span></button><button class="ghost undob tb" id="undob" onclick="undo()" title="Undo the last action" disabled><span class="ti">↶</span><span class="tl">Undo</span></button><button class="ghost logb tb" id="logb" onclick="openLog()" title="View action log"><span class="ti">📜</span><span class="tl">Log</span></button><button class="ghost logb tb" id="lbb" onclick="lbOpen()" title="Series leaderboard from Google Sheets"><span class="ti">🏆</span><span class="tl">Leaderboard</span></button><button class="ghost logb tb" id="tphb" onclick="phOpen()" title="Let players add objectives from their phones"><span class="ti">📱</span><span class="tl">Phones</span></button><button class="ghost logb tb" id="tpjb" onclick="pjOpen()" title="Join a game from this phone with a code"><span class="ti">📲</span><span class="tl">Join</span></button><button class="ghost undob tb" id="fontb" onclick="cycleFont()" title="Change font"><span class="ti">Aa</span><span class="tl"><span id="fontl">Font</span></span></button><button class="ghost logb tb" id="thb" onclick="thCycle('bg')" title="Change background"><span class="ti">🎨</span><span class="tl">Background</span></button><button class="ghost logb tb" id="thx" onclick="thCycle('bx')" title="Change box colour"><span class="ti">🟦</span><span class="tl">Boxes</span></button><button class="ghost tb" id="helpb" onclick="helpOpen()" title="Help"><span class="ti">❓</span><span class="tl">Help</span></button><span class="zm"><span class="zl">Zoom</span><button class="ghost" title="Zoom out 5%" onclick="zoomBy(-5)">−</button><button class="ghost" id="zoomv" title="Reset zoom to 70%" onclick="zoomSet(70)">100%</button><button class="ghost" title="Zoom in 5%" onclick="zoomBy(5)">＋</button></span></div><button class="ghost tlt" id="tlt" title="Tools" aria-label="Show tools" onclick="this.parentNode.classList.toggle('open')"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="currentColor"><circle cx="5" cy="5" r="2"/><circle cx="5" cy="12" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="19" cy="19" r="2"/></g></svg></button></div></div>
 <div id="app"></div><div class="logmodal" id="logmodal" onclick="if(event.target===this)closeLog()"><div class="logbox"><div class="loghead"><h3>Action Log</h3><button class="ghost logb" onclick="closeLog()">Close</button></div><div id="logentries"></div></div></div><div class="foot"><button class="ghost" onclick="if(confirm('Start over?'))reset()">New Game</button></div></main>
 <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -1107,7 +1111,7 @@ function rndDraw(){let m=$('rndm');if(!m){m=document.createElement('div');m.id='
 /* ===== FONT SWITCH ===== */
 const FONTS=[['Classic','"Segoe UI",system-ui,Roboto,sans-serif','"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif'],['Serif','Georgia,"Times New Roman",serif','Georgia,"Times New Roman",serif'],['Modern','"Helvetica Neue",Helvetica,Arial,sans-serif','"Helvetica Neue",Helvetica,Arial,sans-serif'],['Mono','"Cascadia Mono",Consolas,"SF Mono",Menlo,"Courier New",monospace','"Cascadia Mono",Consolas,"SF Mono",Menlo,"Courier New",monospace'],['Rounded','ui-rounded,"Trebuchet MS",Verdana,sans-serif','"Trebuchet MS","Avenir Next",Verdana,sans-serif']];
 let FI=0;try{FI=+localStorage.getItem('ti4font')||0}catch(e){}if(FI<0||FI>=FONTS.length)FI=0;
-function applyFont(){const f=FONTS[FI],r=document.documentElement.style;r.setProperty('--fb',f[1]);r.setProperty('--fs',f[2]);const b=$('fontb');if(b)b.textContent='Aa · '+f[0];try{localStorage.setItem('ti4font',FI)}catch(e){}}
+function applyFont(){const f=FONTS[FI],r=document.documentElement.style;r.setProperty('--fb',f[1]);r.setProperty('--fs',f[2]);const b=$('fontl');if(b)b.textContent=f[0];try{localStorage.setItem('ti4font',FI)}catch(e){}}
 function cycleFont(){FI=(FI+1)%FONTS.length;applyFont()}
 applyFont();
 
@@ -1985,7 +1989,6 @@ else if(ls('ti4RoomOn')==='1'){setTimeout(hStart,600)}
 })();
 </script><script>
 document.addEventListener('click',function(e){var t=document.getElementById('tools');if(!t||!t.classList.contains('open'))return;
-if(!window.matchMedia('(max-width:900px),(pointer:coarse)').matches)return;
 if(!t.contains(e.target)){t.classList.remove('open');return}
 var b=e.target.closest&&e.target.closest('.tbtns button');
 if(b&&!b.closest('.zm')&&['thb','thx','fontb','undob'].indexOf(b.id)<0)t.classList.remove('open')});
