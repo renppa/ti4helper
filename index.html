@@ -447,8 +447,35 @@ button[hidden],[hidden]{display:none!important}
 main{padding-bottom:2rem}.top{padding-right:4.4rem}
 }
 </style>
+<style>
+/* objective checkers */
+#som .mb,#pom .mb{max-width:46rem;width:94%;display:flex;flex-direction:column;max-height:calc(92vh / var(--zm,1))}
+.sonote{margin:.2rem 0 .7rem;color:var(--m);font-size:1rem;line-height:1.35}.sonote em{color:var(--gold);font-style:normal}
+.soch{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.7rem}
+.soc{padding:.35rem .8rem;border-radius:99px;font-size:.95rem}.soc i{font-style:normal;opacity:.7;margin-left:.25rem}.soc.on{background:var(--gold);color:#201400;border-color:var(--gold)}
+.sol{overflow:auto;display:flex;flex-direction:column;gap:.45rem;min-height:0;flex:1}
+.sor{display:grid;grid-template-columns:1fr auto;gap:.15rem .8rem;text-align:left;padding:.7rem .9rem;border-radius:.9rem;background:var(--p2);border:.1rem solid var(--bd);align-items:center}
+.sor b{font-size:1.1rem}.sor small{grid-column:1/-1;color:var(--m);font-size:.98rem;line-height:1.3}
+.sot{font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:.15rem .5rem;border-radius:99px;background:rgba(255,255,255,.08)}
+.sot.tA{color:#ff9b8a}.sot.tS{color:#7fd6ff}.sot.tG{color:#c7a6ff}
+.sor.x{opacity:.35}.sor.x b{text-decoration:line-through}
+.sofoot{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-top:.7rem;color:var(--m);font-size:.9rem}
+.sosc{margin-top:.7rem;color:var(--m)}.sosc summary{cursor:pointer;font-weight:700;padding:.3rem 0}
+.sos{display:grid;grid-template-columns:1fr auto;gap:.1rem .8rem;padding:.5rem 0;border-top:.07rem solid rgba(255,255,255,.1)}.sos b{color:var(--t)}.sos span{color:var(--gold);font-weight:700}.sos small{grid-column:1/-1}
+.pot{margin:.8rem 0 .3rem;color:var(--gold)}.pot i{font-style:normal;opacity:.7;margin-left:.3rem}
+.por{padding:.6rem .9rem;border-radius:.9rem;background:var(--p2);border:.1rem solid var(--bd);margin-bottom:.4rem}.por b{display:block;font-size:1.1rem}.por small{color:var(--m);font-size:.98rem;line-height:1.3}
+</style>
+<style>
+.tpschk{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0 0}.tpschk button{font-weight:700;padding:12px 8px!important}
+.tpsback{margin-bottom:4px}
+.tpsch{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}.tpsc{padding:6px 12px!important;border-radius:999px!important;font-size:15px!important}.tpsc.on{background:var(--gold);color:#201400;border-color:var(--gold);font-weight:700}
+.tpsr{display:block;width:100%;text-align:left;margin-bottom:8px}.tpsr .tpst{display:flex;justify-content:space-between;align-items:center;gap:8px}.tpsr b{font-size:17px}.tpsr small{display:block;color:var(--m);font-size:14px;margin-top:3px;line-height:1.3}
+.tpsr em{font-style:normal;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:99px;background:rgba(255,255,255,.08);white-space:nowrap}.tpsr em.tA{color:#ff9b8a}.tpsr em.tS{color:#7fd6ff}.tpsr em.tG{color:#c7a6ff}
+.tpsr.x{opacity:.35}.tpsr.x b{text-decoration:line-through}
+.tpspo{background:var(--p);border:1px solid var(--bd);border-radius:12px;padding:10px 12px;margin-bottom:8px}.tpspo b{font-size:17px}.tpspo small{display:block;color:var(--m);font-size:14px;margin-top:2px;line-height:1.3}
+</style>
 </head><body><main>
-<div class="top"><div class="brand" id="brand">TWILIGHT IMPERIUM · AGENDA PHASE</div><div class="fi-clock" id="fiClock" aria-label="Finnish local time"><time id="fiClockTime">--:--:--</time></div><button class="ghost xlb" id="xlsb" onclick="copyExcel()" title="Copy game for Excel" hidden>XLS</button><div class="dots" id="dots"></div><div class="tip-ticker" id="tipTicker" hidden aria-label="Twilight Imperium strategy tips"><span class="tip-label">STRATEGY TIP</span><div class="tip-window"><div class="tip-track" id="tipTrack"></div></div></div><span class="apk" id="apk" hidden></span><button class="phb" id="phb" onclick="phClick()" hidden></button><div class="tools" id="tools"><div class="tbtns"><button class="ghost tb" id="rndb" onclick="rndOpen()" title="Pick a random faction"><span class="ti">🎲</span><span class="tl">Randomizer</span></button><button class="elimb tb" id="elimb" onclick="elimOpen()" title="Eliminate a player from the game" hidden><span class="ti">✕</span><span class="tl">Eliminate</span></button><button class="ghost undob tb" id="undob" onclick="undo()" title="Undo the last action" disabled><span class="ti">↶</span><span class="tl">Undo</span></button><button class="ghost logb tb" id="logb" onclick="openLog()" title="View action log"><span class="ti">📜</span><span class="tl">Log</span></button><button class="ghost logb tb" id="lbb" onclick="lbOpen()" title="Series leaderboard from Google Sheets"><span class="ti">🏆</span><span class="tl">Leaderboard</span></button><button class="ghost logb tb" id="tphb" onclick="phOpen()" title="Let players add objectives from their phones"><span class="ti">📱</span><span class="tl">Phones</span></button><button class="ghost logb tb" id="tpjb" onclick="pjOpen()" title="Join a game from this phone with a code"><span class="ti">📲</span><span class="tl">Join</span></button><button class="ghost undob tb" id="fontb" onclick="cycleFont()" title="Change font"><span class="ti">Aa</span><span class="tl"><span id="fontl">Font</span></span></button><button class="ghost logb tb" id="thb" onclick="thCycle('bg')" title="Change background"><span class="ti">🎨</span><span class="tl">Background</span></button><button class="ghost logb tb" id="thx" onclick="thCycle('bx')" title="Change box colour"><span class="ti">🟦</span><span class="tl">Boxes</span></button><button class="ghost tb" id="helpb" onclick="helpOpen()" title="Help"><span class="ti">❓</span><span class="tl">Help</span></button><span class="zm"><span class="zl">Zoom</span><button class="ghost" title="Zoom out 5%" onclick="zoomBy(-5)">−</button><button class="ghost" id="zoomv" title="Reset zoom to 70%" onclick="zoomSet(70)">100%</button><button class="ghost" title="Zoom in 5%" onclick="zoomBy(5)">＋</button></span></div><button class="ghost tlt" id="tlt" title="Tools" aria-label="Show tools" onclick="this.parentNode.classList.toggle('open')"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="currentColor"><circle cx="5" cy="5" r="2"/><circle cx="5" cy="12" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="19" cy="19" r="2"/></g></svg></button></div></div>
+<div class="top"><div class="brand" id="brand">TWILIGHT IMPERIUM · AGENDA PHASE</div><div class="fi-clock" id="fiClock" aria-label="Finnish local time"><time id="fiClockTime">--:--:--</time></div><button class="ghost xlb" id="xlsb" onclick="copyExcel()" title="Copy game for Excel" hidden>XLS</button><div class="dots" id="dots"></div><div class="tip-ticker" id="tipTicker" hidden aria-label="Twilight Imperium strategy tips"><span class="tip-label">STRATEGY TIP</span><div class="tip-window"><div class="tip-track" id="tipTrack"></div></div></div><span class="apk" id="apk" hidden></span><button class="phb" id="phb" onclick="phClick()" hidden></button><div class="tools" id="tools"><div class="tbtns"><button class="ghost tb" id="rndb" onclick="rndOpen()" title="Pick a random faction"><span class="ti">🎲</span><span class="tl">Randomizer</span></button><button class="elimb tb" id="elimb" onclick="elimOpen()" title="Eliminate a player from the game" hidden><span class="ti">✕</span><span class="tl">Eliminate</span></button><button class="ghost undob tb" id="undob" onclick="undo()" title="Undo the last action" disabled><span class="ti">↶</span><span class="tl">Undo</span></button><button class="ghost logb tb" id="logb" onclick="openLog()" title="View action log"><span class="ti">📜</span><span class="tl">Log</span></button><button class="ghost logb tb" id="lbb" onclick="lbOpen()" title="Series leaderboard from Google Sheets"><span class="ti">🏆</span><span class="tl">Leaderboard</span></button><button class="ghost logb tb" id="tphb" onclick="phOpen()" title="Let players add objectives from their phones"><span class="ti">📱</span><span class="tl">Phones</span></button><button class="ghost logb tb" id="tpjb" onclick="pjOpen()" title="Join a game from this phone with a code"><span class="ti">📲</span><span class="tl">Join</span></button><button class="ghost undob tb" id="fontb" onclick="cycleFont()" title="Change font"><span class="ti">Aa</span><span class="tl"><span id="fontl">Font</span></span></button><button class="ghost logb tb" id="thb" onclick="thCycle('bg')" title="Change background"><span class="ti">🎨</span><span class="tl">Background</span></button><button class="ghost logb tb" id="thx" onclick="thCycle('bx')" title="Change box colour"><span class="ti">🟦</span><span class="tl">Boxes</span></button><button class="ghost tb" id="sob" onclick="soOpen()" title="Secret objectives nobody has scored yet"><span class="ti">🕵️</span><span class="tl">Secrets</span></button><button class="ghost tb" id="pob2" onclick="poOpen()" title="Public objectives not yet revealed"><span class="ti">🎯</span><span class="tl">Upcoming</span></button><button class="ghost tb" id="helpb" onclick="helpOpen()" title="Help"><span class="ti">❓</span><span class="tl">Help</span></button><span class="zm"><span class="zl">Zoom</span><button class="ghost" title="Zoom out 5%" onclick="zoomBy(-5)">−</button><button class="ghost" id="zoomv" title="Reset zoom to 70%" onclick="zoomSet(70)">100%</button><button class="ghost" title="Zoom in 5%" onclick="zoomBy(5)">＋</button></span></div><button class="ghost tlt" id="tlt" title="Tools" aria-label="Show tools" onclick="this.parentNode.classList.toggle('open')"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="currentColor"><circle cx="5" cy="5" r="2"/><circle cx="5" cy="12" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="19" cy="19" r="2"/></g></svg></button></div></div>
 <div id="app"></div><div class="logmodal" id="logmodal" onclick="if(event.target===this)closeLog()"><div class="logbox"><div class="loghead"><h3>Action Log</h3><button class="ghost logb" onclick="closeLog()">Close</button></div><div id="logentries"></div></div></div><div class="foot"><button class="ghost" onclick="if(confirm('Start over?'))reset()">New Game</button></div></main>
 <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -987,6 +1014,35 @@ function drawDraft(){let m=$('dm');if(!m){m=document.createElement('div');m.id='
  m.style.display='flex'}
 const HIC=['☠','◈','🔑','✦'];
 function holdSel(){return HOLD.map((h,k)=>{const c=S.hold[k];if(k===2&&c!=null)return '';if(k===3&&!S.ixth&&c==null)return '';return `<label class="hl hk${k}${c!=null?' on':''}"><span class="hnm">${esc(h[0])}</span><select class="hsel" onchange="setHold(${k},this.value===''?null:+this.value)"><option value="">—</option>${c===-1?'<option value="-1" selected>Eliminated player</option>':''}${S.f.map((x,i)=>`<option value="${i}" ${c===i?'selected':''}>${esc(F[x][1])}</option>`).join('')}</select></label>`}).join('')}
+
+/* ===== Secret / public objective checkers ===== */
+const SO_INFO={"Unveil Flagship": ["A", "Win a space combat in a system with your flagship (the flagship must survive)."], "Spark a Rebellion": ["A", "Win a combat against the player with the most victory points."], "Betray a Friend": ["A", "Win a combat against a player whose promissory note you had in your play area when your tactical action began."], "Brave the Void": ["A", "Win a combat in an anomaly."], "Darken the Skies": ["A", "Win a combat in another player's home system."], "Demonstrate Your Power": ["A", "End a space combat with 3 or more non-fighter ships of yours in the active system."], "Destroy Their Greatest Ship": ["A", "Destroy another player's war sun or flagship."], "Make an Example of Their World": ["A", "Destroy a player's last ground forces on a planet during bombardment."], "Become a Martyr": ["A", "Lose control of a planet in a home system."], "Turn Their Fleets to Dust": ["A", "Destroy a player's last non-fighter ships in the active system with space cannon offense."], "Fight With Precision": ["A", "Destroy a player's last fighters in the active system with anti-fighter barrage."], "Prove Endurance": ["A", "Be the last player to pass in a game round."], "Mine Rare Metals": ["S", "Control 4 hazardous planets."], "Monopolize Production": ["S", "Control 4 industrial planets."], "Forge an Alliance": ["S", "Control 4 cultural planets."], "Occupy the Seat of the Empire": ["S", "Control Mecatol Rex and have 3 or more ships in its system."], "Establish Hegemony": ["S", "Control planets with a combined influence of at least 12."], "Hoard Raw Materials": ["S", "Control planets with a combined resource value of at least 12."], "Seize an Icon": ["S", "Control a legendary planet."], "Stake Your Claim": ["S", "Control a planet in a system where another player also controls a planet."], "Destroy Heretical Works": ["S", "Purge 2 of your relic fragments."], "Form a Spy Network": ["S", "Discard 5 action cards."], "Foster Cohesion": ["S", "Be neighbours with every other player."], "Strengthen Bonds": ["S", "Have another player's promissory note in your play area."], "Fuel the War Machine": ["S", "Have 3 space docks on the game board."], "Establish a Perimeter": ["S", "Have 4 PDS on the game board."], "Become the Gatekeeper": ["S", "Have ships in a system with an alpha wormhole and in a system with a beta wormhole."], "Control the Region": ["S", "Have ships in 6 systems."], "Cut Supply Lines": ["S", "Have ships in the same system as another player's space dock."], "Threaten Enemies": ["S", "Have ships in a system adjacent to another player's home system."], "Defy Space and Time": ["S", "Have units in the wormhole nexus."], "Learn the Secrets of the Cosmos": ["S", "Have ships in 3 systems that are each adjacent to an anomaly."], "Master the Laws of Physics": ["S", "Own 4 technologies of the same colour."], "Adapt New Strategies": ["S", "Own 2 faction technologies (Valefar Assimilator technologies do not count)."], "Mechanize the Military": ["S", "Have a mech on each of 4 planets."], "Occupy the Fringe": ["S", "Have 9 or more ground forces on a planet that has none of your space docks."], "Produce En Masse": ["S", "Have units with a combined PRODUCTION value of at least 8 in one system."], "Gather a Mighty Fleet": ["S", "Have 5 dreadnoughts on the game board."], "Dictate Policy": ["G", "3 or more laws are in play."], "Drive the Debate": ["G", "You, or a planet you control, are elected by an agenda."]};
+const SO_PH={A:'Action phase',S:'Status phase',G:'Agenda phase'};
+var SOF='all',SOMK={};
+try{SOMK=JSON.parse(localStorage.getItem('ti4SoMarks')||'{}')||{}}catch(e){SOMK={}}
+function soScored(){const t={},blank=[];(S.mp||[]).forEach(m=>{if(m.r!=='Secret Objective')return;const note=m.note||'',n=SECRET_OBJECTIVES.find(o=>note===o||note.startsWith(o+' – '));if(n){(t[n]=t[n]||{});t[n][m.p]=(t[n][m.p]||0)+m.pts}else if(m.pts>0)blank.push(m)});
+ const by={};Object.keys(t).forEach(n=>{const ps=Object.keys(t[n]).filter(p=>t[n][p]>0).map(Number);if(ps.length)by[n]=ps});return{by,blank:blank.length}}
+function soModal(id,html){let m=$(id);if(!m){m=document.createElement('div');m.id=id;m.className='mo';m.onclick=e=>{if(e.target===m)m.style.display='none'};document.body.appendChild(m)}m.innerHTML=html;m.style.display='flex'}
+function soClose(){const m=$('som');if(m)m.style.display='none'}
+function poClose(){const m=$('pom');if(m)m.style.display='none'}
+function soSet(f){SOF=f;soOpen()}
+function soMark(n){if(SOMK[n])delete SOMK[n];else SOMK[n]=1;try{localStorage.setItem('ti4SoMarks',JSON.stringify(SOMK))}catch(e){}soOpen(true)}
+function soClear(){SOMK={};try{localStorage.removeItem('ti4SoMarks')}catch(e){}soOpen(true)}
+function soOpen(keep){const m0=$('som'),sc=keep&&m0&&m0.querySelector('.sol')?m0.querySelector('.sol').scrollTop:0,{by,blank}=soScored(),left=SECRET_OBJECTIVES.filter(n=>!by[n]),shown=left.filter(n=>SOF==='all'||SO_INFO[n][0]===SOF),scored=SECRET_OBJECTIVES.filter(n=>by[n]);
+ const chip=(k,l)=>`<button class="soc${SOF===k?' on':''}" onclick="soSet('${k}')">${l} <i>${k==='all'?left.length:left.filter(n=>SO_INFO[n][0]===k).length}</i></button>`;
+ const row=n=>`<button class="sor${SOMK[n]?' x':''}" onclick="soMark(${JSON.stringify(n).replace(/"/g,'&quot;')})"><b>${esc(n)}</b><span class="sot t${SO_INFO[n][0]}">${SO_PH[SO_INFO[n][0]]}</span><small>${esc(SO_INFO[n][1])}</small></button>`;
+ soModal('som',`<div class="mb"><div class="mh"><h3>Unscored secret objectives</h3><button onclick="soClose()">✕ Close</button></div>
+ <p class="sonote"><b>${left.length}</b> of ${SECRET_OBJECTIVES.length} secret objectives have not been scored by anyone yet. Use them to work out what the other players might be holding.${blank?` <em>${blank} scoring${blank>1?'s were':' was'} added without a name, so ${blank>1?'those':'that one'} can’t be taken off this list.</em>`:''}</p>
+ <div class="soch">${chip('all','All')}${chip('A','Action phase')}${chip('S','Status phase')}${chip('G','Agenda phase')}</div>
+ <div class="sol">${shown.map(row).join('')||'<p class="sonote">Nothing here.</p>'}</div>
+ <div class="sofoot"><span>Tap a card to cross it out – saved only on this device.</span>${Object.keys(SOMK).length?'<button onclick="soClear()">Clear marks</button>':''}</div>
+ ${scored.length?`<details class="sosc"><summary>Already scored (${scored.length})</summary>${scored.map(n=>`<div class="sos"><b>${esc(n)}</b><span>${by[n].map(p=>esc(F[S.f[p]][1])).join(', ')}</span><small>${esc(SO_INFO[n][1])}</small></div>`).join('')}</details>`:''}</div>`);
+ const l=$('som').querySelector('.sol');if(l&&sc)l.scrollTop=sc}
+function poOpen(){const rev=new Set((S.obj||[]).map(o=>o.k)),grp=v=>PO.map((o,k)=>({o,k})).filter(x=>x.o[1]===v&&!rev.has(x.k)),g1=grp(1),g2=grp(2),
+ sec=(t,a)=>`<h4 class="pot">${t} <i>${a.length}</i></h4>${a.map(x=>`<div class="por"><b>${esc(x.o[0])}</b><small>${esc(x.o[2])}</small></div>`).join('')||'<p class="sonote">All revealed.</p>'}`;
+ soModal('pom',`<div class="mb"><div class="mh"><h3>Public objectives not yet revealed</h3><button onclick="poClose()">✕ Close</button></div>
+ <p class="sonote">These public objectives have not been revealed yet, so any of them could still come up.</p>
+ <div class="sol">${sec('Stage I · 1 VP',g1)}${sec('Stage II · 2 VP',g2)}</div></div>`)}
 function openVP(i){let m=$('vpm');if(!m){m=document.createElement('div');m.id='vpm';m.className='mo';m.onclick=e=>{if(e.target===m)closeVP()};document.body.appendChild(m)}
  m.innerHTML=`<div class="mb"><div class="mh"><h3>Add victory points</h3><button onclick="closeVP()">✕ Close</button></div><div class="mf">
  <label>Player<select id="vpP" onchange="vpRsn()">${S.f.map((x,j)=>`<option value="${j}" ${j===i?'selected':''}>${j+1}. ${esc(F[x][0])}</option>`).join('')}</select></label>
@@ -1734,7 +1790,8 @@ function hState(){const ok=actionOk();
  return{t:'st',ok,stat:!!S.stat,goal:S.goal,
   scOk:scOk(),sc:scOk()?S.sc.map(l=>(l||[]).slice().sort((a,b)=>a-b)):[],cs:Object.assign({},S.cs||{}),
   pl:ok?S.f.map((x,i)=>({n:F[x][1],c:pcol(i),nm:nmGet(i)||'',vp:vpOf(i).t,pa:scOk()&&(S.sc[i]||[]).some(c=>(S.cs||{})[c]===2),so:Math.max(0,S.mp.filter(m=>m.p===i&&m.r==='Secret Objective').reduce((a,m)=>a+m.pts,0)),tk:((S.tech&&S.tech[i])||[]).slice(),ft:(FTECH[F[x][1]]||[]).map(t=>t[0])})):[],
-  ob:ok?S.obj.map(o=>[o.k,o.s.slice()]):[]}}
+  ob:ok?S.obj.map(o=>[o.k,o.s.slice()]):[],
+  sx:ok?Object.entries(soScored().by).map(([n,ps])=>[SECRET_OBJECTIVES.indexOf(n),ps]):[],sb:ok?soScored().blank:0}}
 function hPush(force){if(RELAY){hKick();return}const s=hState(),m=JSON.stringify(s);if(!force&&m===hlast)return;hlast=m;hc.forEach(c=>{try{c.send(s)}catch(e){}})}
 function hKick(){if(!relayOn)return;if(hBusy){hKicked=true;return}clearTimeout(hTm);hTm=setTimeout(hTick,50)}
 function hTick(){
@@ -1853,7 +1910,7 @@ setInterval(()=>{if(hp&&hc.size&&S)hPush(false)},500);
 let secArm=0;
 
 let pTm=null,pCid='',pVer=-1,pFast=0,pBusy=false,cRel=false;
-let cstage='',ctm=null,cp=null,cc=null,ccode='',cs=null,cstat='off',cmsg='',cEver=false,cov=null,ct=null,cr=null,pstage=1,pq='',seat=null,seatN='';
+let cstage='',ctm=null,cp=null,cc=null,ccode='',cs=null,cstat='off',cmsg='',cEver=false,cov=null,ct=null,cr=null,pstage=1,pq='',seat=null,seatN='',pview=null,pSOF='all';
 try{const o=JSON.parse(ls('ti4Seat')||'null');if(o){seat=o[0];seatN=o[1]}}catch(e){}
 function pjDrop(){cRel=false;clearTimeout(pTm);pBusy=false;clearTimeout(cr);try{cc&&cc.close()}catch(e){}try{cp&&cp.destroy()}catch(e){}cp=cc=null;cs=null;cEver=false}
 function pjMsg(m,ms){cmsg=m;clearTimeout(ct);if(ms)ct=setTimeout(()=>{cmsg='';pjRender()},ms)}
@@ -1909,6 +1966,19 @@ function pjSend(m){
   rpost({a:'cmd',room:ccode,cid:pCid,d:m}).then(()=>{pFast=Date.now()+8000;clearTimeout(pTm);pTm=setTimeout(pjPoll,400)}).catch(()=>pjMsg('Sending failed – check the connection.',3000)||pjRender());
   if(navigator.vibrate)navigator.vibrate(15);return}
  if(cstat==='on'&&cc){try{cc.send(m);if(navigator.vibrate)navigator.vibrate(15)}catch(e){}}}
+function pjView(){
+ const back='<button class="ghost tpsback" data-a="vback">← Back</button>';
+ if(pview==='upcoming'){const used=new Set(cs.ob.map(o=>o[0])),g=v=>PO.map((o,k)=>({o,k})).filter(x=>x.o[1]===v&&!used.has(x.k)),
+  sec=(t,a)=>`<h3>${t} · ${a.length}</h3>`+(a.map(x=>`<div class="tpspo"><b>${esc(x.o[0])}</b><small>${esc(x.o[2])}</small></div>`).join('')||'<div class="tphem">All revealed.</div>');
+  return back+'<h3>Public objectives not yet revealed</h3><p class="tphem">None of these are on the board yet – any of them could still come up.</p>'+sec('Stage I',g(1))+sec('Stage II',g(2))}
+ const by={};(cs.sx||[]).forEach(([i,ps])=>{if(SECRET_OBJECTIVES[i])by[SECRET_OBJECTIVES[i]]=ps});
+ const left=SECRET_OBJECTIVES.filter(n=>!by[n]),shown=left.filter(n=>pSOF==='all'||SO_INFO[n][0]===pSOF),scored=SECRET_OBJECTIVES.filter(n=>by[n]),blank=cs.sb||0;
+ const chip=(k,l)=>`<button class="tpsc${pSOF===k?' on':''}" data-a="sof" data-f="${k}">${l} ${k==='all'?left.length:left.filter(n=>SO_INFO[n][0]===k).length}</button>`;
+ return back+`<h3>Unscored secret objectives</h3><p class="tphem"><b>${left.length}</b> of ${SECRET_OBJECTIVES.length} haven’t been scored by anyone yet – use them to work out what the others might be holding.${blank?` <span style="color:var(--gold)">${blank} scoring${blank>1?'s were':' was'} added without a name, so ${blank>1?'those':'that one'} can’t be taken off the list.</span>`:''}</p>
+ <div class="tpsch">${chip('all','All')}${chip('A','Action')}${chip('S','Status')}${chip('G','Agenda')}</div>`
+ +(shown.map(n=>`<button class="tpsr${SOMK[n]?' x':''}" data-a="mark" data-i="${SECRET_OBJECTIVES.indexOf(n)}"><span class="tpst"><b>${esc(n)}</b><em class="t${SO_INFO[n][0]}">${SO_PH[SO_INFO[n][0]]}</em></span><small>${esc(SO_INFO[n][1])}</small></button>`).join('')||'<div class="tphem">Nothing here.</div>')
+ +`<p class="tphem">Tap a card to cross it out – saved only on this phone.${Object.keys(SOMK).length?' <button class="ghost" data-a="clrmarks" style="padding:4px 10px">Clear marks</button>':''}</p>`
+ +(scored.length?`<h3>Already scored · ${scored.length}</h3>`+scored.map(n=>`<div class="tpspo"><b>${esc(n)}</b> <span style="color:var(--gold);font-weight:700">${by[n].map(i=>cs.pl[i]?esc(cs.pl[i].n):'').filter(Boolean).join(', ')}</span><small>${esc(SO_INFO[n][1])}</small></div>`).join(''):'')}
 function pjRender(){
  if(!cov)return;
  const act=document.activeElement,keep=act&&(act.id==='pjq')?[act.id,act.selectionStart,act.selectionEnd]:null;
@@ -1928,6 +1998,7 @@ function pjRender(){
   }else{
    const me=cs.pl[seat],live=cstat==='on',dis=live?'':' disabled';
    h+=`<div class="tphme" style="--fc:${esc(me.c)}"><b>${esc(me.n)}</b><button class="ghost" data-a="chseat">change</button><span class="vp">${me.vp} / ${cs.goal} VP</span></div>`;
+   if(pview){h+=pjView()}else{
    if(cs.scOk&&(cs.sc[seat]||[]).length){
     const mc=cs.sc[seat],passed=mc.some(c=>cs.cs[c]===2);
     h+='<h3>Strategy cards</h3>'+mc.map(c=>{const st=cs.cs[c]||0;return`<div class="tphsc"><span class="n" style="color:${STRATEGY_CARDS[c][1]}">${c+1} ${esc(STRATEGY_CARDS[c][0])}</span><button class="${st?'on':''}" data-a="card" data-c="${c}"${dis}>${st?'✓ Played':'Mark played'}</button></div>`}).join('')
@@ -1943,11 +2014,13 @@ function pjRender(){
    ['green','blue','yellow','red'].forEach(c=>{topt+=tog(c[0].toUpperCase()+c.slice(1),TECH[c])});
    topt+=tog('Faction technology',me.ft||[]);
    h+=`<h3>Secret objective</h3><div class="tphsor"><button class="tphso" data-a="secret"${dis}>${Date.now()<secArm?'Tap again to confirm +1 VP':'🎯 Secret objective played · <b>'+(me.so||0)+'</b> so far'}</button>${(me.so||0)>0?`<button class="tphsx" data-a="unsecret" title="Remove the last secret objective"${dis}>−1</button>`:''}</div>`;
+   h+='<div class="tpschk"><button data-a="view" data-v="secrets">🕵️ Unscored secrets</button><button data-a="view" data-v="upcoming">🎯 Upcoming public</button></div>';
    h+='<h3>Technology</h3>'+(tkHave.length?'<div class="tphtk">'+tkHave.slice().sort((a,b)=>TECH_ORD.indexOf(techCol(a))-TECH_ORD.indexOf(techCol(b))).map(t=>`<button data-a="untech" data-n="${esc(t)}" title="Tap to remove" style="color:${TECH_COL[techCol(t)]}"${dis}>${esc(t)}</button>`).join('')+'</div><p class="tphem" style="margin:0 0 8px">Added by mistake? Tap a technology to remove it.</p>':'')+`<select id="pjt" class="tphts"${dis}>${topt}</select>`;
    const used=new Set(cs.ob.map(o=>o[0])),ql=pq.trim().toLowerCase();
    const L=PO.map((q,k)=>[q,k]).filter(([q,k])=>q[1]===pstage&&!used.has(k)&&(!ql||(q[0]+' '+q[2]).toLowerCase().includes(ql)));
    h+=`<h3>Add an objective</h3><div class="tphseg"><button data-a="stage" data-s="1" class="${pstage===1?'on':''}">Stage I</button><button data-a="stage" data-s="2" class="${pstage===2?'on':''}">Stage II</button></div><input type="text" id="pjq" class="tphq" style="text-transform:none;letter-spacing:0;font-size:16px;text-align:left" placeholder="Search…" value="${esc(pq)}">`;
    h+=L.length?L.map(([q,k])=>`<button class="tphpo" data-a="add" data-k="${k}"${dis}>${esc(q[0])}<small>${esc(q[2])}</small></button>`).join(''):'<div class="tphem">Nothing to add here.</div>';
+   }
   }
  }
  h+='</div>';
@@ -1965,6 +2038,11 @@ window.pjOpen=function(code){
    else if(a==='seat'){seat=+b.dataset.i;seatN=cs.pl[seat].n;ls('ti4Seat',JSON.stringify([seat,seatN]));pjRender()}
    else if(a==='chseat'){seat=null;pjRender()}
    else if(a==='stage'){pstage=+b.dataset.s;pjRender()}
+   else if(a==='view'){pview=b.dataset.v;cov.scrollTop=0;pjRender()}
+   else if(a==='vback'){pview=null;cov.scrollTop=0;pjRender()}
+   else if(a==='sof'){pSOF=b.dataset.f;pjRender()}
+   else if(a==='mark'){const n=SECRET_OBJECTIVES[+b.dataset.i];if(n){if(SOMK[n])delete SOMK[n];else SOMK[n]=1;try{localStorage.setItem('ti4SoMarks',JSON.stringify(SOMK))}catch(x){}pjRender()}}
+   else if(a==='clrmarks'){SOMK={};try{localStorage.removeItem('ti4SoMarks')}catch(x){}pjRender()}
    else if(a==='score')pjSend({t:'score',k,i:seat});
    else if(a==='card')pjSend({t:'card',c:+b.dataset.c,i:seat});
    else if(a==='pass'){const mc=cs.sc[seat]||[],passed=mc.some(c=>cs.cs[c]===2),open=mc.some(c=>!cs.cs[c]);
