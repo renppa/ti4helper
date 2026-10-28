@@ -2016,10 +2016,7 @@ function pjRender(){
    h+=`<h3>Secret objective</h3><div class="tphsor"><button class="tphso" data-a="secret"${dis}>${Date.now()<secArm?'Tap again to confirm +1 VP':'🎯 Secret objective played · <b>'+(me.so||0)+'</b> so far'}</button>${(me.so||0)>0?`<button class="tphsx" data-a="unsecret" title="Remove the last secret objective"${dis}>−1</button>`:''}</div>`;
    h+='<div class="tpschk"><button data-a="view" data-v="secrets">🕵️ Unscored secrets</button><button data-a="view" data-v="upcoming">🎯 Upcoming public</button></div>';
    h+='<h3>Technology</h3>'+(tkHave.length?'<div class="tphtk">'+tkHave.slice().sort((a,b)=>TECH_ORD.indexOf(techCol(a))-TECH_ORD.indexOf(techCol(b))).map(t=>`<button data-a="untech" data-n="${esc(t)}" title="Tap to remove" style="color:${TECH_COL[techCol(t)]}"${dis}>${esc(t)}</button>`).join('')+'</div><p class="tphem" style="margin:0 0 8px">Added by mistake? Tap a technology to remove it.</p>':'')+`<select id="pjt" class="tphts"${dis}>${topt}</select>`;
-   const used=new Set(cs.ob.map(o=>o[0])),ql=pq.trim().toLowerCase();
-   const L=PO.map((q,k)=>[q,k]).filter(([q,k])=>q[1]===pstage&&!used.has(k)&&(!ql||(q[0]+' '+q[2]).toLowerCase().includes(ql)));
-   h+=`<h3>Add an objective</h3><div class="tphseg"><button data-a="stage" data-s="1" class="${pstage===1?'on':''}">Stage I</button><button data-a="stage" data-s="2" class="${pstage===2?'on':''}">Stage II</button></div><input type="text" id="pjq" class="tphq" style="text-transform:none;letter-spacing:0;font-size:16px;text-align:left" placeholder="Search…" value="${esc(pq)}">`;
-   h+=L.length?L.map(([q,k])=>`<button class="tphpo" data-a="add" data-k="${k}"${dis}>${esc(q[0])}<small>${esc(q[2])}</small></button>`).join(''):'<div class="tphem">Nothing to add here.</div>';
+
    }
   }
  }
@@ -2037,7 +2034,6 @@ window.pjOpen=function(code){
    else if(a==='cancel'){clearTimeout(ctm);pjDrop();cstat='off';pjMsg('');pjRender()}
    else if(a==='seat'){seat=+b.dataset.i;seatN=cs.pl[seat].n;ls('ti4Seat',JSON.stringify([seat,seatN]));pjRender()}
    else if(a==='chseat'){seat=null;pjRender()}
-   else if(a==='stage'){pstage=+b.dataset.s;pjRender()}
    else if(a==='view'){pview=b.dataset.v;cov.scrollTop=0;pjRender()}
    else if(a==='vback'){pview=null;cov.scrollTop=0;pjRender()}
    else if(a==='sof'){pSOF=b.dataset.f;pjRender()}
@@ -2050,9 +2046,8 @@ window.pjOpen=function(code){
    else if(a==='secret'){if(Date.now()<secArm){secArm=0;pjSend({t:'secret',i:seat});pjRender()}else{secArm=Date.now()+4000;pjRender();setTimeout(pjRender,4100)}}
    else if(a==='untech'){const n=b.dataset.n;if(n&&confirm('Remove “'+n+'” from your technologies?'))pjSend({t:'untech',i:seat,n})}
    else if(a==='unsecret'){if(confirm('Remove your last secret objective (−1 VP)?'))pjSend({t:'unsecret',i:seat})}
-   else if(a==='add'){if(PO[k]&&confirm('Add “'+PO[k][0]+'” to the board?'))pjSend({t:'add',k})}});
+});
   cov.addEventListener('change',e=>{if(e.target.id!=='pjt')return;const v=e.target.value;e.target.value='';if(v)pjSend({t:'tech',i:seat,n:v})});
-  cov.addEventListener('input',e=>{if(e.target.id==='pjq'){pq=e.target.value;pjRender()}});
   cov.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='pjc')pjConnect(e.target.value)});
  }
  document.documentElement.style.zoom=1;
