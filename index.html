@@ -585,7 +585,8 @@ const voted=v=>v.c!==null&&v.c!=='';
 const isXX=i=>S.f[i]>=0&&F[S.f[i]][0]==='The Xxcha Kingdom';
 const XX=i=>isXX(i)||!!(S.xa&&S.xa[i]);
 const hasXX=()=>S.f.some((x,i)=>isXX(i));
-const xaBox=i=>hasXX()&&!isXX(i)?`<label class="xal"><input type="checkbox" ${S.xa&&S.xa[i]?'checked':''} ${S.xa&&S.xa.some((v,j)=>v&&j!==i)?'disabled':''} onchange="setXA(${i},this.checked)"> Owns Xxcha Alliance</label>`:'';
+const isYin=i=>S.f[i]>=0&&F[S.f[i]][0]==='The Yin Brotherhood';
+const xaBox=i=>!isXX(i)&&(hasXX()||isYin(i))?`<label class="xal"><input type="checkbox" ${S.xa&&S.xa[i]?'checked':''} ${S.xa&&S.xa.some((v,j)=>v&&j!==i)?'disabled':''} onchange="setXA(${i},this.checked)"> Owns Xxcha Alliance</label>`:'';
 function setXA(i,c){S.xa=S.xa.map(()=>false);if(c)S.xa[i]=true;rv();updateRiderInfo()}
 const NOV=(v,i)=>v.riders.length>0&&(!XX(i)||v.riders.some(r=>r.name==='Sanctions'));
 const COLORS=[['Red','#e63946'],['Blue','#2e7bff'],['Green','#2ecc71'],['Yellow','#ffd23f'],['Purple','#9b59ff'],['Orange','#ff8a1f'],['Pink','#ff6fb5'],['Black','#3a3a3a']];
